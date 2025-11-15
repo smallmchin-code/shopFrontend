@@ -20,7 +20,7 @@ const props = defineProps ({
 
 <style scoped>
 .goods-item {
-  border: 0px solid #fff;
+  border: 0px solid #ccc;
   padding: 16px;
   text-align: center;
 }
