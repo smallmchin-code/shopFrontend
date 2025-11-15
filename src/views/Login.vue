@@ -81,21 +81,13 @@ function register() {
 }
 
 function login() {
-  // const user = users.value.find(user => user.username === loginUsername.value && user.password === loginPassword.value);
-  // if (user) {
-  //   alert('登入成功');
-  //   // 模擬成功登入
-  //   router.push('/home');
-  // } else {
-  //   alert('使用者名稱或密碼錯誤');
-  // }
   router.push('/home');
 }
 </script>
 
 <style scoped>
 .login-page-wrapper {
-  position: fixed; /* 使用 fixed 確保覆蓋整個視窗 */
+  /* position: fixed; 使用 fixed 確保覆蓋整個視窗 */
   top: 0;
   left: 0;
   width: 100%;
@@ -103,7 +95,7 @@ function login() {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.8); /* 設置一個半透明的背景，覆蓋 main.css 的背景圖 */
+  /* background-color: rgba(255, 255, 255, 0.8); 設置一個半透明的背景，覆蓋 main.css 的背景圖 */
   z-index: 1000; /* 確保在最上層 */
 }
 
