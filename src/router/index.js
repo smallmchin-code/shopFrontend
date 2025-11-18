@@ -8,7 +8,7 @@ import Layout from '../views/Layout.vue';
 import Jackets from '@/views/productList/JacketsList.vue';
 import Pants from '@/views/productList/PantsList.vue';
 import Tops from '@/views/productList/TopsList.vue';
-
+import AddProduct from '@/views/AddProduct.vue';
 
 const routes = [
   
@@ -16,6 +16,11 @@ const routes = [
     path: '/home',
     component: Layout,
     children: [
+      {
+        path: '/addProduct',
+        name: 'addProduct',
+        component: AddProduct,
+      },
       {
         path: '/',
         name: 'Login',
