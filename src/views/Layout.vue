@@ -120,7 +120,7 @@ function logout() {
     position: absolute;
     top: 50px;
     left: 0;
-    
+     
     width: 50%;
     flex-direction: column;
     background-color: black;

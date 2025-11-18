@@ -13,8 +13,9 @@ const props = defineProps ({
   image: String,
   price: Number,
   size: String,
-  quantity: Number,
-  type: String,
+  description : String,
+  stock: Number,
+  category : String,
 })
 </script>
 
