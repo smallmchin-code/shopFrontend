@@ -36,7 +36,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-
+import logo from '@/assets/goods/LOGO.png'
 
 const router = useRouter();
 const isMenuOpen = ref(false);
@@ -120,7 +120,7 @@ function logout() {
     position: absolute;
     top: 50px;
     left: 0;
-     
+    
     width: 50%;
     flex-direction: column;
     background-color: black;

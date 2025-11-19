@@ -5,9 +5,6 @@
         <input type="text" placeholder="輸入想要的商品名稱">
         <input type="submit" value="查詢">
       </form>
-      <div>
-        <router-link to="/addProduct">我想新增商品</router-link>
-      </div>
       <div class="home-main">
         <h3>商品總覽 </h3>
       </div>

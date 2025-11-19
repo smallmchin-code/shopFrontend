@@ -1,12 +1,9 @@
 <template>
   <div>
     <h1>所有商品</h1>
-    <GoodsList :goods="goods" />
-  </div>
+    </div>
 </template>
 
 <script setup>
-import GoodsList from '../components/GoodsList.vue';
-
-
+// 移除 import GoodsList from '../components/GoodsList.vue';
 </script>
