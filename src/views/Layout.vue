@@ -7,16 +7,19 @@
       </div>
 
       <!-- 中間：網站標題 -->
-       
-      <div class="site-title">Sean Shop</div>
+
+      <div class="site-title">
+        <router-link to="/">Sean Shop</router-link>
+      </div>
       <!-- <img :src="logo" class="site-title" alt=""> -->
 
       <!-- 右側：導覽列 -->
       <ul :class="{ active: isMenuOpen }">
-        <li><router-link to="/home">首頁</router-link></li>
-        <li><router-link to="/products">所有商品</router-link></li>
-        <li><router-link to="/contact">聯繫客服</router-link></li>
-        <li><router-link to="/cart">購物車</router-link></li>
+        <li @click="closeMenu"><router-link to="/login">註冊/登入</router-link></li>
+        <li @click="closeMenu"><router-link to="/">首頁</router-link></li>
+        <li @click="closeMenu"><router-link to="/products">所有商品</router-link></li>
+        <li @click="closeMenu"><router-link to="/contact">聯繫客服</router-link></li>
+        <li @click="closeMenu"><router-link to="/cart">購物車</router-link></li>
         <li @click="logout">登出</li>
       </ul>
     </div>
@@ -45,6 +48,9 @@ function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value;
 }
 
+function closeMenu() {
+  isMenuOpen.value = false;
+}
 function logout() {
   router.push('/');
 }
@@ -77,12 +83,13 @@ function logout() {
 }
 
 /* --- 中間網站名稱 --- */
-.site-title {
+.site-title a{
   flex-grow: 1;
   /* text-align: center; */
   font-weight: bold;
   font-size: 20px;
-  
+   color: white;
+  text-decoration: none;
 }
 
 /* --- 導覽列 --- */

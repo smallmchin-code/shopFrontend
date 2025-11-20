@@ -1,5 +1,3 @@
-// src/composables/useGoods.js
-
 import { ref } from 'vue'; // 移除 computed 的 import
 
 import baconTshirt from '@/assets/goods/baconTshirt.jpg';
@@ -17,7 +15,7 @@ const goods = ref([
         size: 'X', 
         category : 'top',
         description: '經典款式純棉T恤，舒適透氣，適合日常穿著。無明顯污漬或損壞。',
-        stock: 5 // 模擬庫存
+        stock: 5 
     },
     { 
         id: 2, 
@@ -27,7 +25,7 @@ const goods = ref([
         size: 'M', 
         category : 'jacket',
         description: '復古風格皮衣外套，二手商品，狀況良好，只有輕微使用痕跡。非常適合秋冬穿搭。',
-        stock: 1 // 模擬庫存
+        stock: 1 
     },
     { 
         id: 3, 
@@ -37,14 +35,12 @@ const goods = ref([
         size: 'L', 
         category : 'pant',
         description: '寬鬆牛仔褲，腰部有彈性設計，舒適百搭。' ,
-        stock: 0 // 模擬缺貨
+        stock: 0 
     }
 ]);
 
 
 export function useGoods() {
-    // 移除 filterJacketGoods, filterTopGoods, filterPantGoods
-
     /**
      * 獲取過濾後的商品列表。未來這裡將呼叫後端 API：/api/products?category=...
      * @param {string} category - 分類名稱 ('all', 'jacket', 'top', 'pant')
@@ -78,3 +74,4 @@ export function useGoods() {
         getProductById
     };
 }
+

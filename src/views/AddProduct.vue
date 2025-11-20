@@ -2,7 +2,7 @@
 
 <template>
   <form action="" class="add_form">
-    <h2>👗 新增商品</h2>
+    <h2>👗 新增商品👗</h2>
     
     <label for="name">商品名稱</label>
     <input type="text" id="name" name="name" placeholder="例如：復古碎花洋裝、簡約白T恤">
@@ -63,7 +63,8 @@
 /* 標題樣式：更簡潔、強調內容 */
 h2 {
     text-align: center;
-    color: #4a4a4a; /* 深灰色，比純黑柔和 */
+    background-color: #457b9d;
+    color: #f7f5ef; /* 深灰色，比純黑柔和 */
     margin-bottom: 25px;
     font-size: 1.8rem;
     font-weight: 600;

@@ -1,6 +1,7 @@
+// fileName: ProductList.vue
 <template>
   <div class="product-list-container">
-    <h2>{{ categoryName }} 商品清單</h2>
+    <h2>------{{ categoryName }}------ </h2>
 
     <div v-if="products.length" class="goods-list">
       <router-link 
@@ -9,7 +10,13 @@
         :to="`/product/${good.id}`" 
         class="goods-link"
       > 
-        <GoodsItem :name="good.name" :image="good.image" :price="good.price" />
+        <GoodsItem 
+          :id="good.id" 
+          :name="good.name" 
+          :image="good.image" 
+          :price="good.price" 
+          :stock="good.stock" 
+        />
       </router-link>
     </div>
     <div v-else class="empty-list-message">
@@ -58,7 +65,16 @@ watch(currentCategorySlug, (newCategory) => {
 </script>
 
 <style>
-/* 繼承原 JacketsList, TopsList, PantsList 的樣式 */
+h2{
+  text-align: center;
+  margin: 20px 0;
+     background-color: #4a6365;
+    opacity: 0.75;
+    color: #fff;
+    /* 更大的圓角，營造有機、舒適的感覺 */
+    border-radius: 20px; 
+    box-shadow: 0 8px 25px rgba(217, 207, 17, 0.15); 
+}
 .goods-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
