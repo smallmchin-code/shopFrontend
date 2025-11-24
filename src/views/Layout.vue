@@ -19,8 +19,12 @@
         <li @click="closeMenu"><router-link to="/products">所有商品</router-link></li>
         <li @click="closeMenu"><router-link to="/contact">聯繫客服</router-link></li>
         <li @click="closeMenu"><router-link to="/cart">購物車</router-link></li>
-        <li @click="closeMenu"><router-link to="/login">註冊/登入</router-link></li>
-        <li @click="logout">登出</li>
+        <li v-if="!usestore.isLoggedIn" @click="closeMenu">
+          <router-link to="/login">註冊/登入</router-link>
+        </li>
+        <li v-else @click="handleLogout">
+          {{ usestore.currentUser.username }} - 登出
+        </li>
       </ul>
     </div>
 
@@ -39,7 +43,9 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from '@/stores/usestore'; // 引入 Pinia Store
 
+const usestore = useStore();
 
 const router = useRouter();
 const isMenuOpen = ref(false);
@@ -51,8 +57,12 @@ function toggleMenu() {
 function closeMenu() {
   isMenuOpen.value = false;
 }
-function logout() {
-  router.push('/');
+function handleLogout() {
+  usestore.logoutUser();
+  closeMenu(); // 關閉手機選單
+  alert('您已登出');
+  // 導航回首頁或登入頁
+  router.push('/'); 
 }
 </script>
 

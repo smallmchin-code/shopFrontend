@@ -4,7 +4,7 @@
     <div v-if="!isLogin" class="container">
       <h1>Hello, Friend!</h1>
       <h3>註冊</h3>
-      <form @submit.prevent="register">
+      <form @submit.prevent="handleRegister">
         <div class="form-group">
           <label for="username">使用者名稱:</label>
           <input type="text" id="username" v-model="username" required>
@@ -25,7 +25,7 @@
     <!-- 登入表單 -->
     <div v-else class="container">
       <h2>登入</h2>
-      <form @submit.prevent="login">
+      <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="login-username">使用者名稱:</label>
           <input type="text" id="login-username" v-model="loginUsername" required>
@@ -44,9 +44,10 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from 'vue-router';
+import { useStore } from '@/stores/usestore';
 
 const router = useRouter();
-
+const usestore = useStore();
 // --- 狀態管理 ---
 const isLogin = ref(false);
 
@@ -57,31 +58,47 @@ const email = ref('');
 const loginUsername = ref('');
 const loginPassword = ref('');
 
-// --- 使用者數據 ---
-const users = ref([]);
 
 // --- 函式 ---
 function toggleForm() {
   isLogin.value = !isLogin.value;
 }
 
-function register() {
-  if (users.value.find(user => user.username === username.value)) {
-    alert('使用者名稱已存在');
-    return;
-  }
-  users.value.push({
+function handleRegister() {
+  const result = usestore.registerUser({
     username: username.value,
     password: password.value,
     email: email.value
   });
-  alert('註冊成功');
-  註冊後自動切換到登入表單
-  isLogin.value = true;
+  
+  alert(result.message);
+
+  if (result.success) {
+    // 註冊成功後自動切換到登入表單
+    isLogin.value = true; 
+    // 清空表單
+    username.value = '';
+    password.value = '';
+    email.value = '';
+  }
 }
 
-function login() {
-  router.push('/');
+// 處理登入邏輯
+function handleLogin() {
+  const result = usestore.loginUser({
+    username: loginUsername.value,
+    password: loginPassword.value
+  });
+
+  alert(result.message);
+
+  if (result.success) {
+    // 登入成功後導航到首頁
+    router.push('/'); 
+  }
+  
+  // 無論成功失敗，清空密碼
+  loginPassword.value = ''; 
 }
 </script>
 
