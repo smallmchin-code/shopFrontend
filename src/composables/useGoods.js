@@ -39,7 +39,7 @@ const goods = ref([
     }
 ]);
 
-
+export const allGoods = goods;
 export function useGoods() {
     /**
      * 獲取過濾後的商品列表。未來這裡將呼叫後端 API：/api/products?category=...

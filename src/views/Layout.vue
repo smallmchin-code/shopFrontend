@@ -15,11 +15,11 @@
 
       <!-- 右側：導覽列 -->
       <ul :class="{ active: isMenuOpen }">
-        <li @click="closeMenu"><router-link to="/login">註冊/登入</router-link></li>
         <li @click="closeMenu"><router-link to="/">首頁</router-link></li>
         <li @click="closeMenu"><router-link to="/products">所有商品</router-link></li>
         <li @click="closeMenu"><router-link to="/contact">聯繫客服</router-link></li>
         <li @click="closeMenu"><router-link to="/cart">購物車</router-link></li>
+        <li @click="closeMenu"><router-link to="/login">註冊/登入</router-link></li>
         <li @click="logout">登出</li>
       </ul>
     </div>

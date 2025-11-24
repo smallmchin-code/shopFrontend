@@ -7,7 +7,7 @@
         <input type="submit" value="查詢">
       </form>
       <div class="add-product-container">
-        <router-link to="/addproduct">想要新增商品</router-link>
+        <!-- <router-link to="/addproduct">想要新增商品</router-link> -->
       </div>
       
     </div>

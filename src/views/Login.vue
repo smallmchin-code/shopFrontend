@@ -81,7 +81,7 @@ function register() {
 }
 
 function login() {
-  router.push('/home');
+  router.push('/');
 }
 </script>
 
