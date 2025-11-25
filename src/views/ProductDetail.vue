@@ -50,23 +50,23 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router'; // 引入路由 hook
-import { useGoods } from '@/composables/useGoods.js'; // 引入數據邏輯
-import { useCart } from '@/composables/useCart.js'; // 引入購物車邏輯
+import { useRoute } from 'vue-router'; 
+import { useProductStore } from '@/stores/productStore.js'; 
+import { useCartStore } from '@/stores/cartStore.js'; 
 
 const route = useRoute();
-const { getProductById } = useGoods(); 
-const { addToCart } = useCart(); // <--- 取得購物車的 addToCart 函式
+const productStore = useProductStore(); // <-- 取得 Product Store 實例
+const cartStore = useCartStore(); 
 const product = ref(null); 
 
-// 移除 defineEmits(['addToCart']);
+
 
 
 const productId = computed(() => route.params.id);
 
 const loadProductDetail = () => {
-  // 獲取商品資料
-  const foundProduct = getProductById(productId.value);
+  
+  const foundProduct = productStore.getProductById(productId.value);
   
   if (foundProduct) {
     // 成功找到商品，設定 product 狀態
@@ -121,7 +121,7 @@ const toggleDescription = () => {
 const handleAddToCart = () => {
   if (product.value && product.value.stock > 0) {
     // 將完整的商品資訊傳遞給購物車 Composable
-    addToCart(product.value);
+    cartStore.addToCart(product.value);
     alert(`「${product.value.name}」已成功加入購物車！`);
   }
 };

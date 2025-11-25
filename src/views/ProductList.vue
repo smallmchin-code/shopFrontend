@@ -28,41 +28,39 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
-// 假設 GoodsItem 在 components 目錄
 import GoodsItem from '@/components/GoodsItem.vue'; 
-// 引入修改後的 useGoods
-import { useGoods } from '@/composables/useGoods.js'; 
+// 引入 Pinia Store
+import { useProductStore } from '@/stores/productStore.js'; // <-- 引入 Product Store
 
 const route = useRoute();
-const { getFilteredGoods } = useGoods(); 
+const productStore = useProductStore(); // <-- 取得 Product Store 實例
 const products = ref([]);
 
 // 獲取當前分類 Slug，如果沒有參數，則預設為 'all' (全部商品)
 const currentCategorySlug = computed(() => route.params.category || 'all');
 
-// 顯示用的中文名稱
+// ... (categoryName computed property remains the same)
 const categoryName = computed(() => {
   const mapping = {
-    'jacket': '外套',
-    'top': '上衣',
-    'pant': '褲子',
-    'all': '全部商品' 
+    'jacket': '外套清單',
+    'top': '上衣清單',
+    'pant': '褲子清單',
+    'all': '全部商品',
+    'products': '全部商品' // 為了兼容 /products 路由
   };
   return mapping[currentCategorySlug.value] || '商品列表';
 });
-
-// 核心資料獲取邏輯：在未來，這裡將是您的 API 呼叫點
+// 核心資料獲取邏輯：現在從 Pinia Store 獲取
 const loadProducts = () => {
-  // 呼叫 useGoods 中統一的獲取函數
-  products.value = getFilteredGoods(currentCategorySlug.value);
+  // 調用 Store 的 Action/Getter
+  products.value = productStore.getFilteredGoods(currentCategorySlug.value); // <-- 調用 Store
 };
 
-// 監聽路由參數變化，當用戶切換分類時自動重新載入資料
 watch(currentCategorySlug, (newCategory) => {
   loadProducts();
 }, { immediate: true }); 
-// immediate: true 確保在組件初始化時也執行一次 loadProducts
 </script>
+
 
 <style>
 h2{

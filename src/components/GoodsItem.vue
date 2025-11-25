@@ -15,9 +15,14 @@
   </div>
 </template>
 
+// fileName: GoodsItem.vue
+
 <script setup>
-import { useCart } from '@/composables/useCart.js'; // 引入購物車邏輯
-const { addToCart } = useCart();
+// 移除原本的 '@/composables/useCart.js'
+import { useCartStore } from '@/stores/cartStore.js'; // <-- 引入 Pinia Store
+
+// 取得 Store 實例
+const cartStore = useCartStore(); 
 
 const props = defineProps ({
   id: [String, Number], // 新增 id (商品唯一識別)
@@ -31,22 +36,24 @@ const props = defineProps ({
 })
 
 const handleAddToCart = () => {
-  // 將 GoodsItem 的 props 傳遞給購物車 Composable
-  addToCart({
+  // 直接調用 Store 的 Action
+  cartStore.addToCart({ // <-- 改為調用 cartStore 的 action
     id: props.id,
     name: props.name,
     image: props.image,
     price: props.price,
-    stock: props.stock, // 傳遞足夠資訊
+    stock: props.stock, 
   });
 };
 </script>
+
 
 <style scoped>
 .goods-item {
   border: 0px solid #ccc;
   padding: 16px;
   text-align: center;
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .goods-item img {

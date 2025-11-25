@@ -35,7 +35,7 @@
             <td>{{ product.description.substring(0, 20) + '...' }}</td>
             <td>
               <button class="edit" @click="editProduct(product.id)">編輯</button>
-              <button class="delete" @click="deleteProduct(product.id)">刪除</button>
+              <button class="delete" @click="handleDelete(product.id)">刪除</button>
             </td>
           </tr>
         </tbody>
@@ -46,9 +46,12 @@
 
 <script setup>
 // 從 useGoods.js 引入我們導出的所有商品資料 (ref 響應式物件)
-import { allGoods } from '@/composables/useGoods.js'; 
+import { computed } from 'vue';
 import router from '@/router';
+import { useProductStore } from '@/stores/productStore.js'; // <-- 引入 Product Store
 
+const productStore = useProductStore();
+const allGoods = computed(() => productStore.allGoods);
 // 模擬函式：實際會導航到新增頁面
 const addNewProduct = () => {
   router.push('/manager/addproduct');
@@ -61,14 +64,14 @@ const editProduct = (id) => {
 };
 
 // 模擬函式：本地刪除商品
-const deleteProduct = (id) => {
-  const productToDelete = allGoods.value.find(p => p.id === id);
-  if (confirm(`確定要刪除商品 ID ${id}：${productToDelete.name} 嗎？ (本地模擬刪除)`)) {
+const handleDelete = (id) => {
+  if (confirm(`確定要刪除商品 ID ${id}：${name} 嗎？ (本地模擬刪除)`)) {
     // 實際刪除邏輯 (本地模擬)
-    const index = allGoods.value.findIndex(p => p.id === id);
-    if (index !== -1) {
-      allGoods.value.splice(index, 1);
+    const isDeleted = productStore.deleteProduct(id);
+    if (isDeleted) {
       alert(`商品 ID ${id} 已刪除。`);
+    } else {
+      alert(`刪除失敗：找不到商品 ID ${id}。`);
     }
   }
 };

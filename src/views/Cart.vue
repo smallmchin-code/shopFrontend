@@ -1,4 +1,4 @@
-// fileName: Cart.vue
+
 <template>
   <div class="cart-container">
     <h1>購物車</h1>
@@ -31,9 +31,13 @@
 </template>
 
 <script setup>
-import { useCart } from '@/composables/useCart.js'; // 引入購物車邏輯
+import { useCartStore } from '@/stores/cartStore.js'; 
+import { storeToRefs } from 'pinia';
+const cartStore = useCartStore();
+const { items: cartItems, totalItems, totalPrice } = storeToRefs(cartStore);
 
-const { cartItems, removeFromCart, totalItems, totalPrice } = useCart();
+// 4. 直接解構 Action (Action 只是函式，本身不需 storeToRefs)
+const { removeFromCart } = cartStore;
 </script>
 
 <style scoped>
@@ -41,6 +45,7 @@ const { cartItems, removeFromCart, totalItems, totalPrice } = useCart();
   max-width: 800px;
   margin: 30px auto;
   padding: 20px;
+  /* background-color: rgba(2, 1, 19, 0.5); */
 }
 
 h1 {
