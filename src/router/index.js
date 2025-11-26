@@ -7,6 +7,7 @@ import Layout from '../views/Layout.vue';
 import AddProduct from '@/views/manager/AddProduct.vue';
 import ProductDetail from '@/views/ProductDetail.vue';
 import ProductList from '@/views/ProductList.vue'; // 請確保路徑正確
+import MyOrders from '@/views/MyOrders.vue';
 
 // manager
 import Manager from '../views/manager/Manager.vue'
@@ -15,9 +16,12 @@ import Manager_Orders from '@/views/manager/Manager_Orders.vue';
 import Manager_Users from '@/views/manager/Manager_Users.vue';
 
 const routes = [
-  
   {
-    path: '/manager', 
+    path: '/home',
+    component: Layout,
+    children: [
+      {
+        path: '/manager', 
     name: 'Manager',
     component: Manager,
     children: [
@@ -42,11 +46,12 @@ const routes = [
         component: Manager_Users,
       },
     ]      
-  },
-  {
-    path: '/home',
-    component: Layout,
-    children: [
+      },
+      {
+        path: '/myorders',
+        name: 'MyOrders',
+        component: MyOrders,
+      },
       {
         path: '/product/:id',
         name: 'ProductDetail',

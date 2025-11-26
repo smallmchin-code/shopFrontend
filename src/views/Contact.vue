@@ -12,7 +12,7 @@
 
     <div class="contact-sections">
       <section class="info-card primary">
-        <h2 class="card-title">📞 立即與我們聯繫</h2>
+        <h2 class="card-title">📞   立即與我們聯繫</h2>
         <p class="description">請透過以下最快速的方式與我們取得聯繫：</p>
         <ul class="contact-list">
           <li>
@@ -30,18 +30,18 @@
       </section>
 
       <section class="info-card social">
-        <h2 class="card-title">📱 追蹤我們的社群</h2>
+        <h2 class="card-title">📱    追蹤我們的社群</h2>
         <p class="description">
           別忘了追蹤我們的社群媒體，獲取最新的穿搭靈感與優惠資訊！
         </p>
         <ul class="contact-list social-links">
           <li>
             <span class="label">Instagram</span>
-            <a href="#" target="_blank" class="value link-ig">@SHAO</a>
+            <a href="https://www.instagram.com/" target="_blank" class="value link-ig">@SHAO</a>
           </li>
           <li>
             <span class="label">Facebook</span>
-            <a href="#" target="_blank" class="value link-fb">嗯嗯嗯嗯</a>
+            <a href="https://www.facebook.com/facebook/" target="_blank" class="value link-fb">嗯嗯嗯嗯</a>
           </li>
         </ul>
       </section>
@@ -120,8 +120,9 @@
 }
 
 .card-title {
-  font-size: 1.6em;
-  color: #4a6365;
+  font-size: 1.5em;
+  /* color: #4a6365; */
+
   margin-top: 0;
   margin-bottom: 15px;
 }

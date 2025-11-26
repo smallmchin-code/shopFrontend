@@ -10,6 +10,7 @@ export const useStore = defineStore( 'user',() => {
   // Getter
   const isLoggedIn = computed(() => currentUser.value !== null);
 
+  const allUsers = computed(() => users.value);
   // 動作 (Actions)
   
   // 註冊
@@ -28,7 +29,6 @@ export const useStore = defineStore( 'user',() => {
     const user = users.value.find(
       u => u.username === username && u.password === password
     );
-
     if (user) {
       // 模擬登入成功，將用戶資訊存入
       currentUser.value = { 
@@ -41,6 +41,11 @@ export const useStore = defineStore( 'user',() => {
       return { success: false, message: '使用者名稱或密碼錯誤' };
     }
   }
+  function deleteUser(username) {
+    const initialLength = users.value.length;
+    users.value = users.value.filter(user => user.username !== username);
+    return initialLength !== users.value.length; // 回傳是否成功刪除
+  }
 
   // 登出
   function logoutUser() {
@@ -52,8 +57,10 @@ export const useStore = defineStore( 'user',() => {
     users, 
     currentUser, 
     isLoggedIn, 
+    allUsers,
     registerUser, 
     loginUser, 
-    logoutUser 
+    logoutUser,
+    deleteUser,
   };
 });

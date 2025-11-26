@@ -86,8 +86,15 @@ export const useProductStore = defineStore('product', () => {
         }
         return false;
     }
-
+    function findGoodsByName(name) {
+        // 將名稱轉換為小寫，並去除前後空白，以進行不區分大小寫且精確的比較
+        const lowerCaseName = name.toLowerCase().trim();
+        
+        return goods.value.find(good => 
+            good.name.toLowerCase().trim() === lowerCaseName
+        );
+    }
     // 可以在這裡新增 addProduct 和 updateProduct 的 action
 
-    return { goods, allGoods, getProductById, getFilteredGoods, deleteProduct };
+    return { goods, allGoods, getProductById, getFilteredGoods, deleteProduct,findGoodsByName };
 });

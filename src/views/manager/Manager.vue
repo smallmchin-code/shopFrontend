@@ -1,6 +1,5 @@
 <template>
   <div class="manager-layout">
-    
     <aside class="sidebar">
       <div class="sidebar-header">
         <h3>管理中心</h3>

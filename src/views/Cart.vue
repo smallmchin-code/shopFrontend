@@ -26,18 +26,51 @@
       <div class="cart-summary">
         總計商品數: {{ totalItems }} | 總金額: NT$ {{ totalPrice.toLocaleString() }}
       </div>
+
+      <button class="checkout-btn" @click="handleCheckout">
+          結帳 (購買)
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cartStore.js'; 
+import { useOrderStore } from '@/stores/orderStore';
 import { storeToRefs } from 'pinia';
-const cartStore = useCartStore();
-const { items: cartItems, totalItems, totalPrice } = storeToRefs(cartStore);
 
+const router = useRouter();
+const cartStore = useCartStore();
+const orderStore = useOrderStore()
+const { items: cartItems, totalItems, totalPrice } = storeToRefs(cartStore);
 // 4. 直接解構 Action (Action 只是函式，本身不需 storeToRefs)
 const { removeFromCart } = cartStore;
+
+function handleCheckout() {
+    if (totalItems.value === 0) {
+        alert('您的購物車是空的，無法結帳。');
+        return;
+    }
+
+    // 1. 詢問使用者確定或取消 (使用原生 confirm)
+    if (confirm('確定要送出訂單並結帳嗎？')) {
+        // 2. 呼叫 Order Store 的建立訂單 Action
+        const result = orderStore.createOrder();
+
+        alert(result.message);
+
+        if (result.success) {
+            // 3. 成功後導向首頁或訂單列表
+            // 這裡導向首頁，您也可以將其改為您的訂單列表頁面 (例如: '/my-orders')
+            router.push('/'); 
+        }
+    } else {
+        // 使用者選擇取消
+        // 可以選擇給一個提示或不作任何動作
+        alert('您已取消送出訂單。');
+    }
+}
 </script>
 
 <style scoped>
@@ -124,5 +157,25 @@ h1 {
   font-size: 1.2em;
   font-weight: bold;
   text-align: right;
+}
+.checkout-btn {
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    background-color: #529256; /* 綠色，代表結帳 */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    box-shadow: 0 4px #06590a; /* 陰影讓按鈕有立體感 */
+}
+
+.checkout-btn:active {
+    background-color: #388E3C;
+    box-shadow: 0 2px #388E3C;
+    transform: translateY(2px);
 }
 </style>
