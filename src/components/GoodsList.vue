@@ -19,17 +19,17 @@ import ProductList from '@/views/ProductList.vue';
   /* flex-direction: column;
   gap: 32px; */
 }
-.goods-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
 
 .type-head {
   text-align: center;
-  margin-top: 20px;
-  padding: 15px;
-  background-color: rgbc(210, 180, 140); 
+  background: none; /* 移除現有背景 */
+  border: none;
+  padding: 10px 15px;
+  margin: 0 10px;
+  cursor: pointer;
+  font-family: '微軟正黑體', sans-serif; /* 選擇一款現代字體 */
+  font-size: 1.1em;
+  transition: all 0.3s ease;
   flex-grow: 1;
   color: #000;
   border: none;
@@ -41,5 +41,13 @@ import ProductList from '@/views/ProductList.vue';
   transition: background-color 0.3s, transform 0.1s;
   letter-spacing: 1px; 
 }
-
+.type-head:hover {
+  background-color: #e0dcd5; /* 柔和的背景色 */
+  transform: translateY(-2px); /* 輕微上移 */
+}
+.type-head:active {
+  color: #000;
+  font-weight: bold;
+  border-bottom: 3px solid #000; /* 點擊時回到原位 */
+}
 </style>

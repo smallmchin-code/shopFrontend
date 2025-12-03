@@ -155,7 +155,7 @@ input {
 button {
   width: 100%;
   padding: 12px;
-  background-color: #007bff;
+  background-color: #4c5968;
   color: #fff;
   border: none;
   border-radius: 4px;

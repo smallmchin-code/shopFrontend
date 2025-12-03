@@ -1,14 +1,26 @@
-<script setup></script>
+<script setup>
+import { ref } from 'vue';
+const isMoreImgs = ref(false);
+const toggleMoreImgs = () => {
+    isMoreImgs.value = !isMoreImgs.value;
+};
+</script>
 
 <template>
-  <form action="" class="add_form">
+  <form action="" class="add_form" >
     <h2>👗 新增商品👗</h2>
     
     <label for="name">商品名稱</label>
     <input type="text" id="name" name="name" placeholder="例如：復古碎花洋裝、簡約白T恤">
     
-    <label for="image">商品圖片網址</label>
-    <input type="text" id="image" name="image" placeholder="貼上清晰的商品圖片連結">
+    <label for="image">商品封面</label>
+    <input type="file" accept=".jpg, .jpeg, .png" id="image" name="imageismain" placeholder="貼上清晰的商品圖片連結" >
+    
+    <button @click="toggleMoreImgs" v-if="!isMoreImgs">有兩張(含)以上圖片</button>
+    <div v-else>
+        <label for="image" >商品圖片</label>
+        <input type="file" accept=".jpg, .jpeg, .png" id="image" name="imagedata" placeholder="貼上清晰的商品圖片連結" multiple>
+    </div>
     
     <label for="price">商品價格 ($)</label>
     <input type="number" id="price" name="price" placeholder="請輸入合理的價格" min="0">
@@ -31,7 +43,12 @@
     <input type="number" id="stock" name="stock" placeholder="一般為 1" min="1">
     
     <label for="category">商品分類</label>
-    <input type="text" id="category" name="category" placeholder="例如：上衣/外套/褲子">
+    <select id="category" name="category">
+        <option value="" disabled selected>請選擇分類</option>
+        <option value="jacket">jacket(外套)</option>
+        <option value="top">top(上衣)</option>
+        <option value="pant">pant(褲子)</option>
+    </select>
     
     <button type="submit">✨ 提交商品資訊</button>
   </form>
@@ -81,6 +98,7 @@ label {
 }
 
 /* 輸入框和下拉選單樣式：統一、簡潔、舒適 */
+input[type="file"], 
 input[type="text"], 
 input[type="number"],
 select,

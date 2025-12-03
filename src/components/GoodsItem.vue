@@ -15,7 +15,6 @@
   </div>
 </template>
 
-// fileName: GoodsItem.vue
 
 <script setup>
 // 移除原本的 '@/composables/useCart.js'

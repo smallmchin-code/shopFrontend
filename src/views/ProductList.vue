@@ -1,4 +1,3 @@
-// fileName: ProductList.vue
 <template>
   <div class="product-list-container">
     <h2>------{{ categoryName }}------ </h2>
@@ -66,12 +65,12 @@ watch(currentCategorySlug, (newCategory) => {
 h2{
   text-align: center;
   margin: 20px 0;
-     background-color: #4a6365;
-    opacity: 0.75;
-    color: #fff;
-    /* 更大的圓角，營造有機、舒適的感覺 */
-    border-radius: 20px; 
-    box-shadow: 0 8px 25px rgba(217, 207, 17, 0.15); 
+  background-color: #4a6365;
+  opacity: 0.75;
+  color: #fff;
+  /* 更大的圓角，營造有機、舒適的感覺 */
+  border-radius: 20px; 
+  box-shadow: 0 8px 25px rgba(217, 207, 17, 0.15); 
 }
 .goods-list {
   display: grid;

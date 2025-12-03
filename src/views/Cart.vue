@@ -101,6 +101,7 @@ h1 {
 }
 
 .cart-item {
+  background: #56d65edd;
   display: flex;
   align-items: center;
   border: 1px solid #eee;

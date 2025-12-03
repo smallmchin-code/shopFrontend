@@ -76,7 +76,7 @@ function handleLogout() {
 
 /* --- 頂部導覽列 --- */
 .home-top {
-  background-color: black;
+  background-color: #4a6365;
   color: white;
   padding: 10px 15px;
   display: flex;
@@ -149,6 +149,7 @@ function handleLogout() {
   .home-top ul.active {
     display: flex; /* 展開時顯示 */
     opacity: 0.8;
+    z-index: 9999;
   }
 
   .home-top li {
@@ -168,7 +169,7 @@ function handleLogout() {
 
 .footer{
   list-style: none;
- background-color: black;
+ background-color: #4a6365;
   color: white;
   padding: 10px 15px;
   

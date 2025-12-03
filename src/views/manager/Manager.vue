@@ -77,7 +77,7 @@ const logout = () => {
 }
 .sidebar {
   width: 250px;
-  background-color: #34495e; 
+  background-color: #457b9d; 
   color: white;
   padding: 20px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -102,6 +102,7 @@ const logout = () => {
   transition: background-color 0.3s, padding-left 0.3s;
   border-radius: 4px;
   margin-bottom: 5px;
+  background-color: #34495e;
 }
 .sidebar nav li:hover {
   background-color: #4a637a;

@@ -37,11 +37,11 @@
         <ul class="contact-list social-links">
           <li>
             <span class="label">Instagram</span>
-            <a href="https://www.instagram.com/" target="_blank" class="value link-ig">@SHAO</a>
+            <a href="https://www.instagram.com/yakon_tw/" target="_blank" class="value link-ig">@SHAO</a>
           </li>
           <li>
             <span class="label">Facebook</span>
-            <a href="https://www.facebook.com/facebook/" target="_blank" class="value link-fb">嗯嗯嗯嗯</a>
+            <a href="https://www.facebook.com/success.rich.happycming" target="_blank" class="value link-fb">嗯嗯嗯嗯</a>
           </li>
         </ul>
       </section>
