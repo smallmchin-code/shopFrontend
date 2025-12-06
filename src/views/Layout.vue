@@ -57,6 +57,7 @@ function toggleMenu() {
 function closeMenu() {
   isMenuOpen.value = false;
 }
+
 async function handleLogout() {
   await usestore.logoutUser();
   closeMenu(); // 關閉手機選單
