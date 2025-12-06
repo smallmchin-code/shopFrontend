@@ -47,27 +47,23 @@ const { items: cartItems, totalItems, totalPrice } = storeToRefs(cartStore);
 // 4. 直接解構 Action (Action 只是函式，本身不需 storeToRefs)
 const { removeFromCart } = cartStore;
 
-function handleCheckout() {
+async function handleCheckout() {
     if (totalItems.value === 0) {
         alert('您的購物車是空的，無法結帳。');
         return;
     }
 
-    // 1. 詢問使用者確定或取消 (使用原生 confirm)
     if (confirm('確定要送出訂單並結帳嗎？')) {
-        // 2. 呼叫 Order Store 的建立訂單 Action
-        const result = orderStore.createOrder();
+        // 呼叫 Order Store 的異步建立訂單 Action，並使用 await 等待結果
+        const result = await orderStore.createOrder(); // 👈 使用 await
 
         alert(result.message);
 
         if (result.success) {
-            // 3. 成功後導向首頁或訂單列表
-            // 這裡導向首頁，您也可以將其改為您的訂單列表頁面 (例如: '/my-orders')
-            router.push('/'); 
+            // 成功後導向我的訂單頁面會更合適
+            router.push('/my-orders'); 
         }
     } else {
-        // 使用者選擇取消
-        // 可以選擇給一個提示或不作任何動作
         alert('您已取消送出訂單。');
     }
 }

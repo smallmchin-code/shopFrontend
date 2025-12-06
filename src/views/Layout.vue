@@ -57,8 +57,8 @@ function toggleMenu() {
 function closeMenu() {
   isMenuOpen.value = false;
 }
-function handleLogout() {
-  usestore.logoutUser();
+async function handleLogout() {
+  await usestore.logoutUser();
   closeMenu(); // 關閉手機選單
   alert('您已登出');
   // 導航回首頁或登入頁

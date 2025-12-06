@@ -1,65 +1,94 @@
 
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import axios from 'axios';
 
-export const useStore = defineStore( 'user',() => {
+const BASE_URL = 'http://localhost:8080/yourApp/api/users'
+export const useStore = defineStore('user', () => {
   // 狀態 (State)
   const users = ref([]); // 模擬儲存所有註冊用戶
   const currentUser = ref(null); // 當前登入的使用者
-  
+
   // Getter
   const isLoggedIn = computed(() => currentUser.value !== null);
 
   const allUsers = computed(() => users.value);
   // 動作 (Actions)
-  
-  // 註冊
-  function registerUser({ username, password, email }) {
-    if (users.value.find(user => user.username === username)) {
-      return { success: false, message: '使用者名稱已存在' };
+
+  // 註冊 (POST /api/users)
+  async function registerUser({ username, password, email }) {
+    try {
+      // 發送 POST 請求到後端 /api/users 進行註冊
+      const response = await axios.post(BASE_URL, { username, password, email });
+
+      // 假設後端返回 { success: true, message: '...' }
+      return response.data;
+    } catch (error) {
+      console.error('註冊失敗:', error);
+      // 處理 HTTP 錯誤 (例如 409 Conflict)
+      return { success: false, message: error.response?.data?.message || '註冊失敗，伺服器錯誤' };
     }
-    
-    const newUser = { username, password, email };
-    users.value.push(newUser);
-    return { success: true, message: '註冊成功' };
   }
 
-  // 登入
-  function loginUser({ username, password }) {
-    const user = users.value.find(
-      u => u.username === username && u.password === password
-    );
-    if (user) {
-      // 模擬登入成功，將用戶資訊存入
-      currentUser.value = { 
-        username: user.username, 
+  // 登入 (POST /api/users/login)
+  async function loginUser({ username, password }) {
+    try {
+      // 發送 POST 請求到後端 /api/users/login 進行登入驗證
+      const response = await axios.post(`${BASE_URL}/login`, { username, password });
+
+      // 假設後端成功返回用戶資訊 (包含 role)
+      const user = response.data;
+
+      // 將用戶資訊存入 Pinia Store
+      currentUser.value = {
+        username: user.username,
         email: user.email,
-        role: user.username.toLowerCase().includes('admin') ? 'admin' : 'user' // 簡單模擬 admin 角色判斷
-      }; 
+        role: user.role // 角色資訊應由後端返回
+      };
+
       return { success: true, message: '登入成功' };
-    } else {
-      return { success: false, message: '使用者名稱或密碼錯誤' };
+    } catch (error) {
+      console.error('登入失敗:', error);
+      // 處理 HTTP 錯誤 (例如 401 Unauthorized)
+      return { success: false, message: error.response?.data?.message || '使用者名稱或密碼錯誤' };
     }
   }
-  function deleteUser(username) {
-    const initialLength = users.value.length;
-    users.value = users.value.filter(user => user.username !== username);
-    return initialLength !== users.value.length; // 回傳是否成功刪除
+
+  // 登出 (POST /api/users/logout)
+  async function logoutUser() {
+    try {
+      // 發送 POST/GET 請求通知伺服器清除 Session/Token
+      await axios.post(`${BASE_URL}/logout`);
+    } catch (error) {
+      console.warn('登出時發生錯誤 (可能不影響前端登出):', error);
+    } finally {
+      currentUser.value = null;
+    }
   }
 
-  // 登出
-  function logoutUser() {
-    currentUser.value = null;
-    // 在實際應用中，您可能還需要清除 localStorage/sessionStorage 中的 token
+  // 刪除使用者 (DELETE /api/users/{username})
+  async function deleteUser(username) {
+    try {
+      // 發送 DELETE 請求
+      await axios.delete(`${BASE_URL}/${username}`);
+
+      // [可選] 如果您需要管理前端的 users 列表，則在這裡更新
+      // users.value = users.value.filter(user => user.username !== username);
+
+      return { success: true, message: '刪除成功' };
+    } catch (error) {
+      console.error('刪除失敗:', error);
+      return { success: false, message: error.response?.data?.message || '刪除失敗' };
+    }
   }
 
-  return { 
-    users, 
-    currentUser, 
-    isLoggedIn, 
+  return {
+    users,
+    currentUser,
+    isLoggedIn,
     allUsers,
-    registerUser, 
-    loginUser, 
+    registerUser,
+    loginUser,
     logoutUser,
     deleteUser,
   };

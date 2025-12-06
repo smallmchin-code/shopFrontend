@@ -45,33 +45,52 @@
 </template>
 
 <script setup>
-// 從 useGoods.js 引入我們導出的所有商品資料 (ref 響應式物件)
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue'; // 引入 onMounted 和 ref
 import router from '@/router';
-import { useProductStore } from '@/stores/productStore.js'; // <-- 引入 Product Store
+import { useProductStore } from '@/stores/productStore.js';
 
 const productStore = useProductStore();
 const allGoods = computed(() => productStore.allGoods);
-// 模擬函式：實際會導航到新增頁面
-const addNewProduct = () => {
-  router.push('/manager/addproduct');
-//   alert('功能：導航到新增商品頁面，路徑：/manager/products/add');
-};
+
+// --- 新增狀態管理 ---
+const isLoading = ref(true); // 載入狀態
+const isDeleting = ref(false); // 刪除操作鎖定狀態
+
+// --- 3. 組件掛載後載入資料 ---
+onMounted(async () => {
+    try {
+        await productStore.fetchAllGoods();
+    } catch (error) {
+        console.error("載入商品資料失敗:", error);
+        alert("載入商品資料失敗，請檢查網路連線或伺服器。");
+    } finally {
+        isLoading.value = false;
+    }
+});
+
 
 // 模擬函式：實際會導航到編輯頁面
 const editProduct = (id) => {
+  // 您可能需要導航到 /editproduct/:id
   alert(`功能：導航到商品 ID ${id} 的編輯頁面`);
 };
 
-// 模擬函式：本地刪除商品
-const handleDelete = (id) => {
-  if (confirm(`確定要刪除商品 ID ${id}：${name} 嗎？ (本地模擬刪除)`)) {
-    // 實際刪除邏輯 (本地模擬)
-    const isDeleted = productStore.deleteProduct(id);
-    if (isDeleted) {
-      alert(`商品 ID ${id} 已刪除。`);
-    } else {
-      alert(`刪除失敗：找不到商品 ID ${id}。`);
+// --- 4. 修改 handleDelete 函式為異步操作 ---
+const handleDelete = async (id) => {
+  const productToDelete = productStore.allGoods.find(p => p.id === id);
+  const productName = productToDelete ? productToDelete.name : `ID ${id} 的商品`;
+
+  if (confirm(`確定要刪除 ${productName} 嗎？`)) {
+    isDeleting.value = true;
+    try {
+        // 呼叫 Pinia Store 的異步刪除函式
+        await productStore.deleteProduct(id);
+        alert(`${productName} 已刪除。`);
+    } catch (error) {
+        console.error(`刪除商品 ID ${id} 失敗:`, error);
+        alert(`刪除失敗：無法從伺服器刪除 ${productName}。`);
+    } finally {
+        isDeleting.value = false;
     }
   }
 };

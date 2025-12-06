@@ -53,6 +53,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router'; 
 import { useProductStore } from '@/stores/productStore.js'; 
 import { useCartStore } from '@/stores/cartStore.js'; 
+import { storeToRefs } from 'pinia';
 
 const route = useRoute();
 const productStore = useProductStore(); // <-- 取得 Product Store 實例
@@ -62,28 +63,25 @@ const product = ref(null);
 
 
 
-const productId = computed(() => route.params.id);
-
-const loadProductDetail = () => {
-  
-  const foundProduct = productStore.getProductById(productId.value);
-  
-  if (foundProduct) {
-    // 成功找到商品，設定 product 狀態
-    product.value = foundProduct; 
-  } else {
-    product.value = null; 
+onMounted(async () => {
+  const productId = route.params.id; // 假設您的路由設定為 /product/:id
+  if (productId) {
+    try {
+      // 呼叫異步 Action 取得商品資料
+      const fetchedProduct = await productStore.fetchProductById(productId);
+      product.value = fetchedProduct; // 將取得的資料存入本地 ref
+    } catch (error) {
+      console.error(`載入商品 ID ${productId} 失敗:`, error);
+      product.value = null; // 載入失敗時清空或顯示錯誤
+      alert('找不到該商品，或伺服器連線失敗。');
+    }
   }
-};
-
-// 首次載入時執行
-onMounted(loadProductDetail);
-// 監聽 ID 變化，確保從商品 A 跳轉到商品 B 時會重新載入
-watch(productId, loadProductDetail);
+});
 
 
 // ----------------------------------------------------
 // 2. 狀態與計算屬性 (使用 product.value)
+
 // ----------------------------------------------------
 
 // 處理描述文字的展開/收起
@@ -118,13 +116,20 @@ const toggleDescription = () => {
 };
 
 // 新增加入購物車的方法
-const handleAddToCart = () => {
-  if (product.value && product.value.stock > 0) {
-    // 將完整的商品資訊傳遞給購物車 Composable
-    cartStore.addToCart(product.value);
-    alert(`「${product.value.name}」已成功加入購物車！`);
+function handleAddToCart() {
+  if (!product.value) {
+    alert('商品資訊尚未載入。');
+    return;
   }
-};
+  if (product.value.stock === 0) {
+    alert('此商品已售罄，無法加入購物車。');
+    return;
+  }
+  
+  // 呼叫 cartStore 的 addToCart Action，傳入完整的商品物件
+  cartStore.addToCart(product.value); 
+  alert(`商品「${product.value.name}」已加入購物車！`);
+}
 </script>
 <style scoped>
 

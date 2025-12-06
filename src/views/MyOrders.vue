@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed , onMounted } from 'vue';
 import { useOrderStore } from '@/stores/orderStore';
 import { useStore as useUserStore } from '@/stores/usestore'; // 假設使用者 Store 導出 useStore
 import { storeToRefs } from 'pinia';
@@ -69,6 +69,7 @@ import { storeToRefs } from 'pinia';
 const userStore = useUserStore();
 const orderStore = useOrderStore();
 const { userOrders } = storeToRefs(orderStore);
+const { fetchUserOrders } = orderStore;
 
 // ---------------- 狀態與邏輯 ----------------
 
@@ -114,6 +115,18 @@ const filteredOrders = computed(() => {
     
     // 返回該狀態組的訂單
     return groupedOrders.value[currentStatusFilter.value] || [];
+});
+
+onMounted(async () => { // 👈 新增 onMounted
+    // 只有在登入狀態下才嘗試載入
+    if (userStore.isLoggedIn) {
+        try {
+            await fetchUserOrders(); // 👈 呼叫異步載入使用者訂單
+        } catch (error) {
+            alert('載入您的訂單失敗，請檢查連線。');
+            console.error('Fetch user orders failed:', error);
+        }
+    }
 });
 
 </script>

@@ -43,9 +43,22 @@ import Main1 from '@/assets/goods/Home-main1.png';
 import Main2 from '@/assets/goods/Home-main2.png';
 import { useProductStore } from '@/stores/productStore.js';
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia';
+
 const router = useRouter();
 const productStore = useProductStore();
-const { findGoodsByName } = productStore;
+const { searchGoodsByName , fetchAllGoods } = productStore;
+const { allGoods } = storeToRefs(productStore);
+
+onMounted(async () => {
+    try {
+        await fetchAllGoods(); // 👈 呼叫異步 Action 載入商品
+    } catch (error) {
+        console.error("載入商品失敗:", error);
+        // 可選：向用戶顯示錯誤訊息
+        alert('載入商品列表失敗，請檢查伺服器連線。'); 
+    }
+});
 
 const images = [Main1, Main2];
 const currentIndex = ref(0); 
@@ -58,24 +71,27 @@ const nextImage = () => {
   currentIndex.value = (currentIndex.value + 1) % images.length;
 };
 
-const handleSearch = () => {
-  if (!searchQuery.value.trim()) {
-    alert('請輸入商品名稱');
-    return;
-  }
-
-  // 1. 根據名稱查找商品
-  const foundProduct = findGoodsByName(searchQuery.value);
-
-  if (foundProduct) {
-    // 2. 找到商品，導航到其詳情頁面
-    // 假設您的商品詳情頁面路由是 /product/:id
-    router.push(`/product/${foundProduct.id}`);
-    searchQuery.value = ''; // 清空輸入框
-  } else {
-    // 3. 找不到商品
-    alert(`找不到名稱為「${searchQuery.value}」的商品。請檢查輸入是否完整正確。`);
-  }
+const handleSearch = async () => { // 👈 修正為 async
+    const query = searchQuery.value.trim();    
+    if (query) {
+        try {
+            await searchGoodsByName(query); // 👈 呼叫新的異步 Action
+            
+            // 根據搜尋結果給予用戶提示 (可選)
+            if (productStore.goods.length === 0) {
+                 alert(`後端找不到與「${query}」相關的商品。`);
+            } else {
+                 alert(`找到 ${productStore.goods.length} 個與「${query}」相關的商品。`);
+            }
+            
+        } catch (error) {
+            alert('搜尋失敗，請檢查網路或伺服器。');
+        }
+    } else {
+        // 如果搜尋框為空，重新載入所有商品
+        await fetchAllGoods();
+    }
+    searchQuery.value = ''; // 清空搜尋框
 };
 
 // 3. 組件生命週期控制

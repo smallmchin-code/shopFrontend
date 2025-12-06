@@ -49,7 +49,7 @@ import { useStore } from '@/stores/usestore';
 const router = useRouter();
 const usestore = useStore();
 // --- 狀態管理 ---
-const isLogin = ref(false);
+const isLogin = ref(true);
 
 // --- 表單模型 ---
 const username = ref('');
@@ -64,8 +64,8 @@ function toggleForm() {
   isLogin.value = !isLogin.value;
 }
 
-function handleRegister() {
-  const result = usestore.registerUser({
+async function handleRegister() {
+  const result = await usestore.registerUser({
     username: username.value,
     password: password.value,
     email: email.value
@@ -84,8 +84,8 @@ function handleRegister() {
 }
 
 // 處理登入邏輯
-function handleLogin() {
-  const result = usestore.loginUser({
+async function handleLogin() {
+  const result = await usestore.loginUser({
     username: loginUsername.value,
     password: loginPassword.value
   });

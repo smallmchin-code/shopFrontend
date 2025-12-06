@@ -57,5 +57,8 @@ export const useCartStore = defineStore('cart', () => {
     }
     // 可以在這裡新增 removeFromCart, updateQuantity 等 action
 
-    return { items, totalItems,totalPrice, addToCart ,removeFromCart};
+    function clearCart() {
+        items.value = [];
+    }
+    return { items, totalItems,totalPrice, addToCart ,removeFromCart,clearCart};
 });

@@ -4,12 +4,13 @@ import Login from '../views/Login.vue';
 import Contact from '../views/Contact.vue';
 import Cart from '../views/Cart.vue';
 import Layout from '../views/Layout.vue';
-import AddProduct from '@/views/manager/AddProduct.vue';
 import ProductDetail from '@/views/ProductDetail.vue';
 import ProductList from '@/views/ProductList.vue'; // 請確保路徑正確
 import MyOrders from '@/views/MyOrders.vue';
 
 // manager
+import EditProduct from '@/views/manager/EditProduct.vue';
+import AddProduct from '@/views/manager/AddProduct.vue';
 import Manager from '../views/manager/Manager.vue'
 import Manager_Products from '@/views/manager/Manager_Products.vue';
 import Manager_Orders from '@/views/manager/Manager_Orders.vue';
@@ -21,31 +22,36 @@ const routes = [
     component: Layout,
     children: [
       {
-        path: '/manager', 
-    name: 'Manager',
-    component: Manager,
-    children: [
-      {
-        path: 'products', // /manager/products
-        name: 'ManagerProducts',
-        component: Manager_Products,
-      },
-      {
-        path: '/addproduct',
-        name: 'AddProduct',
-        component: AddProduct,
-      },
-      {
-        path: 'orders', // /manager/orders
-        name: 'ManagerOrders',
-        component: Manager_Orders,
-      },
-      {
-        path: 'users', // /manager/users
-        name: 'ManagerUsers',
-        component: Manager_Users,
-      },
-    ]      
+        path: '/manager',
+        name: 'Manager',
+        component: Manager,
+        children: [
+          {
+            path: 'products', // /manager/products
+            name: 'ManagerProducts',
+            component: Manager_Products,
+          },
+          {
+            path: '/addproduct',
+            name: 'AddProduct',
+            component: AddProduct,
+          },
+          {
+            path: 'orders', // /manager/orders
+            name: 'ManagerOrders',
+            component: Manager_Orders,
+          },
+          {
+            path: 'users', // /manager/users
+            name: 'ManagerUsers',
+            component: Manager_Users,
+          },
+          {
+            path: '/editproduct/:id',
+            name: 'EditProduct',
+            component: EditProduct,
+          }
+        ]
       },
       {
         path: '/myorders',
@@ -70,12 +76,12 @@ const routes = [
       {
         path: '/products',
         name: 'AllProducts',
-        component: ProductList, 
+        component: ProductList,
       },
       {
         path: '/products/:category',
         name: 'CategoryProducts',
-        component: ProductList, 
+        component: ProductList,
       },
       {
         path: '/contact',

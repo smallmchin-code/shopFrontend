@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref ,onMounted } from 'vue';
 import { useOrderStore } from '@/stores/orderStore';
 import { storeToRefs } from 'pinia';
 
@@ -88,13 +88,24 @@ const { updateOrderStatus } = orderStore;
 
 const selectedOrder = ref(null);
 
+onMounted(async () => {
+    try {
+        await fetchAllOrders(); 
+    } catch (error) {
+        alert('載入所有訂單列表失敗，請檢查伺服器連線。');
+        console.error('Fetch all orders failed:', error);
+    }
+});
+
 function viewOrderDetails(order) {
   selectedOrder.value = order;
 }
 
-function handleStatusChange(id, newStatus) {
+async function handleStatusChange(id, newStatus) { // 👈 修正為 async
   if (confirm(`確定要將訂單 ${id} 的狀態更改為「${newStatus}」嗎？`)) {
-    const result = updateOrderStatus(id, newStatus);
+    // 呼叫異步更新 Action，並使用 await 等待結果
+    const result = await updateOrderStatus(id, newStatus); // 👈 使用 await
+    
     if (result.success) {
         alert(result.message);
     } else {

@@ -77,7 +77,7 @@ const getRole = (username) => {
  * 處理刪除使用者的邏輯
  * @param {string} username - 要刪除的使用者名稱
  */
-const handleDelete = (username) => {
+const handleDelete = async (username) => {
   // 防止刪除管理員
   if (getRole(username) === 'admin') {
       alert('為了安全起見，不允許在介面中刪除管理員帳號！');
@@ -92,13 +92,9 @@ const handleDelete = (username) => {
         return;
     }
     
-    const success = deleteUser(username);
+    const result = await deleteUser(username);
     
-    if (success) {
-      alert(`使用者「${username}」已成功刪除。`);
-    } else {
-      alert(`刪除失敗：找不到使用者「${username}」。`);
-    }
+    alert(result.message);
   }
 };
 </script>
