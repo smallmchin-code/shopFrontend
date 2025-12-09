@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080/yourApp/api/users'
+const BASE_URL = 'http://localhost:8080/api/users'
 export const useStore = defineStore('user', () => {
   // 狀態 (State)
   const users = ref([]); // 模擬儲存所有註冊用戶
@@ -20,7 +20,7 @@ export const useStore = defineStore('user', () => {
     try {
       // 發送 POST 請求到後端 /api/users 進行註冊
       const response = await axios.post(BASE_URL, { username, password, email });
-
+      console.log('註冊成功:', response.data);
       // 假設後端返回 { success: true, message: '...' }
       return response.data;
     } catch (error) {

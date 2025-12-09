@@ -1,25 +1,58 @@
 <script setup>
 import { ref } from 'vue';
+import { useProductStore } from '@/stores/productStore'; // 確保路徑正確
+// import { useRouter } from 'vue-router'; // 建議：提交成功後跳轉頁面
+
+const productStore = useProductStore();
+// const router = useRouter(); // 實例化 router
+
 const isMoreImgs = ref(false);
 const toggleMoreImgs = () => {
     isMoreImgs.value = !isMoreImgs.value;
 };
+
+const handleSubmit = async (event) => {
+    // 阻止表單的預設提交行為，防止頁面刷新
+    event.preventDefault(); 
+    
+    // 1. 取得表單數據
+    // FormData 會自動處理檔案和欄位數據
+    const formData = new FormData(event.target);
+    
+    // 🌟 注意：您的表單使用了兩個不同的 <input type="file">，
+    // name="imageismain" 和 name="imagedata" (multiple)
+    // 這裡的 FormData 會自動包含所有 name 屬性的值
+    
+    try {
+        // 2. 呼叫 Pinia Action 傳送 FormData
+        const newProduct = await productStore.createProduct(formData);
+        
+        // 3. 處理成功：顯示通知或跳轉
+        alert(`商品 "${newProduct.name}" 新增成功！`);
+        // router.push({ name: 'ProductManager' }); // 提交成功後跳轉到商品管理頁面
+        
+    } catch (error) {
+        // 4. 處理失敗
+        alert('新增商品失敗，請檢查網路或後端 API 錯誤。');
+        console.error("提交錯誤:", error);
+    }
+};
 </script>
 
 <template>
-  <form action="" class="add_form" >
+  <form @submit="handleSubmit" class="add_form" >
     <h2>👗 新增商品👗</h2>
     
     <label for="name">商品名稱</label>
     <input type="text" id="name" name="name" placeholder="例如：復古碎花洋裝、簡約白T恤">
     
     <label for="image">商品封面</label>
-    <input type="file" accept=".jpg, .jpeg, .png" id="image" name="imageismain" placeholder="貼上清晰的商品圖片連結" >
+    <input type="file" accept=".jpg, .jpeg, .png" id="image" name="imageismain" placeholder="貼上清晰的商品圖片" >
     
     <button @click="toggleMoreImgs" v-if="!isMoreImgs">有兩張(含)以上圖片</button>
     <div v-else>
         <label for="image" >商品圖片</label>
-        <input type="file" accept=".jpg, .jpeg, .png" id="image" name="imagedata" placeholder="貼上清晰的商品圖片連結" multiple>
+        <input type="file" accept=".jpg, .jpeg, .png" id="image" name="imagedata" placeholder="貼上清晰的商品圖片" multiple>
     </div>
     
     <label for="price">商品價格 ($)</label>

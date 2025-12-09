@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import axios from 'axios'
 
-const BASE_URL = "http://localhost:8080/sean/api/products"
+const BASE_URL = "http://localhost:8080/api/products"
 
 export const useProductStore = defineStore('product', () => {
 
@@ -74,6 +74,26 @@ export const useProductStore = defineStore('product', () => {
         
         return res.data // 返回更新後的商品資料
     }
+
+    async function createProduct(productData) {
+        try {
+            const res = await axios.post(BASE_URL, productData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data' 
+                }
+            })
+            const createdProduct = res.data
+
+            goods.value.push(createdProduct) 
+            
+            return createdProduct 
+            
+        } catch (error) {
+            console.error('新增商品失敗:', error)
+            throw error 
+        }
+    }
+
     return {
         goods,
         allGoods,
@@ -83,6 +103,7 @@ export const useProductStore = defineStore('product', () => {
         deleteProduct,
         findGoodsByName,
         searchGoodsByName,
-        updateProduct
+        updateProduct,
+        createProduct
     }
 })
