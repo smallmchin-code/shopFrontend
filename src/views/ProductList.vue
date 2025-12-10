@@ -12,7 +12,7 @@
         <GoodsItem 
           :id="good.id" 
           :name="good.name" 
-          :image="good.image" 
+          :image-id="good.images && good.images.length > 0 ? good.images[0].id : null"
           :price="good.price" 
           :stock="good.stock" 
         />

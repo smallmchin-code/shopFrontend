@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted ,computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router'; // 👈 引入 useRouter
 import { useProductStore } from '@/stores/productStore';
 
@@ -7,6 +7,18 @@ const route = useRoute();
 const router = useRouter(); // 👈 初始化 Router 實例
 const productStore = useProductStore();
 
+
+const productImageUrl = computed(() => {
+    // 假設第一個圖片是主圖，或者至少是管理頁面要顯示的圖
+    const imageId = product.value.images && product.value.images.length > 0 
+                  ? product.value.images[0].id 
+                  : null;
+                  
+    if (imageId) {
+        return `http://localhost:8080/api/products/images/${imageId}`;
+    }
+    return '/path/to/default-image.png'; // 預設圖片
+});
 const product = ref({
     // ... (保持不變)
     name: '',
@@ -19,17 +31,33 @@ const product = ref({
 });
 
 onMounted(async () => {
-    const productId = route.params.id;
+    const rawProductId = route.params.id;
+    
+    // 2. 🌟 核心修正：嘗試將 ID 轉換為整數
+    const productId = Number(rawProductId); 
+
+    // 3. 檢查 ID 是否有效
+    if (isNaN(productId) || productId <= 0) {
+        console.error("無效的商品 ID:", rawProductId);
+        alert("無效的商品 ID，無法載入編輯頁面。");
+        router.push('/manager/products'); // 導回列表頁
+        return; 
+    }
+
     try {
-        // 修正：使用 Pinia Store 中定義的 fetchProductById
+        // 🌟 傳遞轉換後的數字 ID
         const fetchedProduct = await productStore.fetchProductById(productId);
         
-        // 修正：將返回的資料賦值給 product.value
-        // 確保 price 和 stock 是 Number 類型，避免表單綁定錯誤
+        // ... (其餘載入邏輯保持不變)
+        const mainVariant = fetchedProduct.variants && fetchedProduct.variants.length > 0 
+                               ? fetchedProduct.variants[0] 
+                               : { stock: 0, size: 'OneSize' }; 
+                               
         product.value = { 
             ...fetchedProduct,
             price: Number(fetchedProduct.price),
-            stock: Number(fetchedProduct.stock)
+            stock: Number(mainVariant.stock),
+            size: mainVariant.size 
         };
         
     } catch (error) {
@@ -60,44 +88,47 @@ const submitForm = async () => {
     }
 };
 </script>
+
 <template>
   <form @submit.prevent="submitForm" class="edit_form">
-    <h2>✏️ 編輯商品 ✏️</h2>
-    
-    <label for="name">商品名稱</label>
-    <input type="text" id="name" v-model="product.name">
-    
-    <label for="image">商品封面</label>
-    <input type="text" id="image" v-model="product.image">
-    
-    <label for="price">商品價格 ($)</label>
-    <input type="number" id="price" v-model="product.price" min="0">
-    
-    <label for="size">商品尺寸</label>
-    <select id="size" v-model="product.size">
-        <option value="XS">XS (特小)</option>
-        <option value="S">S (小)</option>
-        <option value="M">M (中)</option>
-        <option value="L">L (大)</option>
-        <option value="XL">XL (特大)</option>
-        <option value="OneSize">均碼</option>
-    </select>
-    
-    <label for="description">商品描述</label>
-    <textarea id="description" v-model="product.description"></textarea>
-    
-    <label for="stock">商品庫存量</label>
-    <input type="number" id="stock" v-model="product.stock" min="1">
-    
-    <label for="category">商品分類</label>
-    <select id="category" v-model="product.category">
-        <option value="jacket">jacket(外套)</option>
-        <option value="top">top(上衣)</option>
-        <option value="pant">pant(褲子)</option>
-    </select>
-    
-    <button type="submit">💾 更新商品資訊</button>
-  </form>
+    <h2>✏️ 編輯商品 ✏️</h2>
+    
+    <label for="name">商品名稱</label>
+    <input type="text" id="name" v-model="product.name">
+   
+        <label for="current_image">目前封面圖片</label>
+    <div v-if="productImageUrl && productImageUrl !== '/path/to/default-image.png'">
+        <img :src="productImageUrl" alt="目前圖片" style="max-width: 150px; border-radius: 4px; margin-bottom: 10px;">
+    </div>
+        
+    <label for="price">商品價格 ($)</label>
+    <input type="number" id="price" v-model="product.price" min="0">
+    
+    <label for="size">商品尺寸</label>
+    <select id="size" v-model="product.size">
+        <option value="XS">XS (特小)</option>
+        <option value="S">S (小)</option>
+        <option value="M">M (中)</option>
+        <option value="L">L (大)</option>
+        <option value="XL">XL (特大)</option>
+        <option value="OneSize">均碼</option>
+    </select>
+    
+    <label for="description">商品描述</label>
+    <textarea id="description" v-model="product.description"></textarea>
+    
+    <label for="stock">商品庫存量</label>
+    <input type="number" id="stock" v-model="product.stock" min="1">
+    
+    <label for="category">商品分類</label>
+    <select id="category" v-model="product.category">
+        <option value="jacket">jacket(外套)</option>
+        <option value="top">top(上衣)</option>
+        <option value="pant">pant(褲子)</option>
+    </select>
+    
+    <button type="submit">💾 更新商品資訊</button>
+  </form>
 </template>
 
 <style scoped>

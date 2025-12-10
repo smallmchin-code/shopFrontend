@@ -2,7 +2,7 @@
 <template>
   <div v-if="product" class="product-card" :class="{ 'out-of-stock': product.stock === 0 }">    
     <div class="product-image-container">
-      <img :src="product.image" :alt="product.name" class="product-image" />
+      <img :src="productImageUrl" :alt="product.name" class="product-image" />
       <div v-if="product.stock === 0" class="stock-overlay">
         已售罄 (Out of Stock)
       </div>
@@ -13,7 +13,6 @@
       <p class="product-category">分類: {{ product.category }}</p>
 
       <div class="product-price">
-        NT$ {{ formattedPrice }}
       </div>
       
       <div class="product-details">
@@ -49,11 +48,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router'; 
 import { useProductStore } from '@/stores/productStore.js'; 
 import { useCartStore } from '@/stores/cartStore.js'; 
-import { storeToRefs } from 'pinia';
 
 const route = useRoute();
 const productStore = useProductStore(); // <-- 取得 Product Store 實例
@@ -61,7 +59,17 @@ const cartStore = useCartStore();
 const product = ref(null); 
 
 
-
+const productImageUrl = computed(() => {
+    // 1. 檢查商品數據和圖片列表是否存在
+    if (product.value && product.value.images && product.value.images.length > 0) {
+        // 2. 假設我們只需要第一張圖 (Main Image 或 Images[0])
+        const imageId = product.value.images[0].id;
+        return `http://localhost:8080/api/products/images/${imageId}`;
+    }
+    
+    // 如果沒有圖片或圖片列表為空，使用預設圖
+    return '/path/to/default-image.png'; // 請替換成您實際的預設圖路徑
+});
 
 onMounted(async () => {
   const productId = route.params.id; // 假設您的路由設定為 /product/:id
@@ -69,6 +77,10 @@ onMounted(async () => {
     try {
       // 呼叫異步 Action 取得商品資料
       const fetchedProduct = await productStore.fetchProductById(productId);
+      if (fetchedProduct.variants && fetchedProduct.variants.length > 0) {
+          fetchedProduct.size = fetchedProduct.variants[0].size;
+          fetchedProduct.stock = fetchedProduct.variants[0].stock;
+      }
       product.value = fetchedProduct; // 將取得的資料存入本地 ref
     } catch (error) {
       console.error(`載入商品 ID ${productId} 失敗:`, error);

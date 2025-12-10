@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed , onMounted } from 'vue';
 import { useStore } from '@/stores/usestore.js'; // 引入您的 Pinia User Store
 import { storeToRefs } from 'pinia';
 
@@ -60,7 +60,7 @@ const userStore = useStore();
 const { allUsers } = storeToRefs(userStore); 
 
 // 2. 直接解構 Action
-const { deleteUser } = userStore;
+const { deleteUser , fetchAllUsers } = userStore;
 
 /**
  * 根據您的 Store 邏輯，重新判斷角色的 computed property
@@ -71,7 +71,9 @@ const { deleteUser } = userStore;
 const getRole = (username) => {
     return username.toLowerCase().includes('admin') ? 'admin' : 'user';
 };
-
+onMounted(() => {
+    fetchAllUsers();
+});
 
 /**
  * 處理刪除使用者的邏輯
@@ -92,9 +94,12 @@ const handleDelete = async (username) => {
         return;
     }
     
-    const result = await deleteUser(username);
-    
-    alert(result.message);
+    try {
+      await deleteUser(username);
+      alert(`使用者 ${username} 刪除成功！`);
+    } catch (error) {
+        alert(`刪除失敗: ${error.message || '請檢查權限'}`);
+    }
   }
 };
 </script>

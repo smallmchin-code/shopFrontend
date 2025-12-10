@@ -47,7 +47,7 @@ const routes = [
             component: Manager_Users,
           },
           {
-            path: '/editproduct/:id',
+            path: 'edit-product/:id',
             name: 'EditProduct',
             component: EditProduct,
           }

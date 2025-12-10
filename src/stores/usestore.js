@@ -70,15 +70,34 @@ export const useStore = defineStore('user', () => {
   async function deleteUser(username) {
     try {
       // 發送 DELETE 請求
+      const userToDelete = users.value.find(u => u.username === username);
+
+      if (!userToDelete) {
+        throw new Error('找不到該使用者');
+      }
       await axios.delete(`${BASE_URL}/${username}`);
 
       // [可選] 如果您需要管理前端的 users 列表，則在這裡更新
-      // users.value = users.value.filter(user => user.username !== username);
+      users.value = users.value.filter(user => user.username !== username);
 
       return { success: true, message: '刪除成功' };
     } catch (error) {
       console.error('刪除失敗:', error);
       return { success: false, message: error.response?.data?.message || '刪除失敗' };
+    }
+  }
+
+  async function fetchAllUsers() {
+    try {
+      const response = await axios.get(BASE_URL); // BASE_URL = 'http://localhost:8080/api/users'
+      // 假設後端返回 List<User>
+      users.value = response.data; 
+      return { success: true, message: '使用者列表載入成功' };
+    } catch (error) {
+      console.error('載入使用者列表失敗:', error);
+      // 載入失敗時，將列表清空
+      users.value = [];
+      return { success: false, message: error.response?.data?.message || '載入使用者列表失敗' };
     }
   }
 
@@ -91,5 +110,6 @@ export const useStore = defineStore('user', () => {
     loginUser,
     logoutUser,
     deleteUser,
+    fetchAllUsers
   };
 });

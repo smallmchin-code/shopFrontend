@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item">
-    <img :src="image" :alt="name" />
+    <img :src="imageUrl" :alt="name" />
     <h3>{{ name }}</h3>
     <p>${{ price }}</p>
     
@@ -17,7 +17,7 @@
 
 
 <script setup>
-// 移除原本的 '@/composables/useCart.js'
+import { computed } from 'vue';
 import { useCartStore } from '@/stores/cartStore.js'; // <-- 引入 Pinia Store
 
 // 取得 Store 實例
@@ -26,7 +26,7 @@ const cartStore = useCartStore();
 const props = defineProps ({
   id: [String, Number], // 新增 id (商品唯一識別)
   name: String,
-  image: String,
+  imageId: [String, Number],
   price: Number,
   stock: Number, // 新增 stock (判斷是否缺貨)
   size: String,
@@ -34,12 +34,19 @@ const props = defineProps ({
   category : String,
 })
 
+const imageUrl = computed(() => {
+    if (props.imageId) {
+        return `http://localhost:8080/api/products/images/${props.imageId}`
+    }
+    return '/path/to/default-image.png' // 請替換為您自己的預設圖路徑
+})
+
 const handleAddToCart = () => {
   // 直接調用 Store 的 Action
   cartStore.addToCart({ // <-- 改為調用 cartStore 的 action
     id: props.id,
     name: props.name,
-    image: props.image,
+    image: imageUrl.value,
     price: props.price,
     stock: props.stock, 
   });

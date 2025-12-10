@@ -29,7 +29,7 @@
         </transition>
       </div>
     </div>
-    <div>
+    <div>    
       <GoodsList />
     </div>
   </div>

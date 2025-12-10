@@ -70,9 +70,9 @@ onMounted(async () => {
 
 
 // 模擬函式：實際會導航到編輯頁面
-const editProduct = (id) => {
+const editProduct = (productId) => {
   // 您可能需要導航到 /editproduct/:id
-  alert(`功能：導航到商品 ID ${id} 的編輯頁面`);
+  router.push(`/manager/edit-product/${productId}`);
 };
 
 // --- 4. 修改 handleDelete 函式為異步操作 ---
