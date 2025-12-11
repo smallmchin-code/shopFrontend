@@ -2,7 +2,7 @@
   <div>
     <div class="home-main-head">
       <div>
-        <router-link to="/manager">1</router-link>
+        
       </div>
       <form class="search" @submit.prevent="handleSearch">
   <input 

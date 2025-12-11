@@ -47,6 +47,9 @@
 <script setup>
 import { useRouter, useRoute } from 'vue-router';
 import { onMounted } from 'vue';
+import { useStore } from '@/stores/usestore'; 
+
+const usestore = useStore();
 
 const router = useRouter();
 const route = useRoute(); 
@@ -59,10 +62,11 @@ onMounted(() => {
 });
 
 // 登出功能
-const logout = () => {
+async function logout (){
   if (confirm('確定要登出管理介面嗎?')) {
-    // 實際登出邏輯 (清除 Token/Session 等)
-    router.push('/login'); // 登出後導向登入頁
+    await usestore.logoutUser();
+  alert('您已登出');
+    router.push('/login'); 
   }
 };
 </script>

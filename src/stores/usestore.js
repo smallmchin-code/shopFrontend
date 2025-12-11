@@ -12,6 +12,8 @@ export const useStore = defineStore('user', () => {
   // Getter
   const isLoggedIn = computed(() => currentUser.value !== null);
 
+  
+
   const allUsers = computed(() => users.value);
   // 動作 (Actions)
 
@@ -32,20 +34,15 @@ export const useStore = defineStore('user', () => {
 
   // 登入 (POST /api/users/login)
   async function loginUser({ username, password }) {
-    try {
-      // 發送 POST 請求到後端 /api/users/login 進行登入驗證
+    try {   
       const response = await axios.post(`${BASE_URL}/login`, { username, password });
-
-      // 假設後端成功返回用戶資訊 (包含 role)
       const user = response.data;
-
-      // 將用戶資訊存入 Pinia Store
       currentUser.value = {
         username: user.username,
         email: user.email,
-        role: user.role // 角色資訊應由後端返回
+        id: user.id 
       };
-
+      localStorage.setItem('user_id', user.id);
       return { success: true, message: '登入成功' };
     } catch (error) {
       console.error('登入失敗:', error);
@@ -63,6 +60,7 @@ export const useStore = defineStore('user', () => {
       console.warn('登出時發生錯誤 (可能不影響前端登出):', error);
     } finally {
       currentUser.value = null;
+      localStorage.removeItem('user_id');
     }
   }
 
@@ -101,7 +99,35 @@ export const useStore = defineStore('user', () => {
     }
   }
 
+async function initializeAuth() {
+    const userId = localStorage.getItem('user_id'); 
+    
+    if (userId) {
+      try {
+        const response = await axios.get(`${BASE_URL}/${userId}`); 
+        const user = response.data;
+
+        // 恢復 currentUser 狀態
+        currentUser.value = {
+          username: user.username,
+          email: user.email,
+          id: user.id 
+        };
+        console.log('Auth initialized: Restored login state from localStorage.');
+      } catch (error) {
+        // ID 無效或伺服器錯誤時，清除本地儲存的 ID
+        console.error('Failed to restore auth state:', error);
+        localStorage.removeItem('user_id');
+        currentUser.value = null;
+      }
+    }
+  }
+
+  // 💡 立即執行檢查以恢復狀態
+  initializeAuth();
+
   return {
+    
     users,
     currentUser,
     isLoggedIn,

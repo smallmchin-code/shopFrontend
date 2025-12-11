@@ -1,6 +1,8 @@
 <template>
   <div class="goods-item">
-    <img :src="imageUrl" :alt="name" />
+    <div class="image-container"> 
+      <img :src="imageUrl" :alt="name" class="product-image" />
+    </div>
     <h3>{{ name }}</h3>
     <p>${{ price }}</p>
     
@@ -60,13 +62,39 @@ const handleAddToCart = () => {
   padding: 16px;
   text-align: center;
   background-color: rgba(255, 255, 255, 0.8);
+  /* 為了讓子元素(圖片容器)的絕對定位能參考到它 */
+  position: relative; 
+  /* 確保商品項目在內容較少時也不會太小 */
+  min-height: 400px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* 讓內容/按鈕置底，保持視覺統一 */
 }
 
-.goods-item img {
-  max-width: 100%;
-  height: auto;
+.image-container {
+  width: 100%;
+  /* 使用 padding-top 實現寬高比。100% 代表寬高相等 (1:1) */
+  /* 如果想要 3:4 的高，請使用 padding-top: calc(4 / 3 * 100%); */
+  padding-top: 100%; 
+  position: relative; /* 讓圖片可以絕對定位 */
+  margin-bottom: 10px; /* 圖片和文字間隔 */
+  overflow: hidden; /* 確保裁切不會露出邊界 */
 }
 
+/* === 關鍵：圖片填滿容器並裁切 (保持比例不變形) === */
+.product-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  /* 確保圖片填滿容器並裁切，不會拉伸變形 */
+  object-fit: cover; 
+}
+h3 {
+    min-height: 1.2em; /* 確保標題即使只有一行也不會跳動 */
+}
 /* 新增：按鈕樣式 */
 .add-to-cart-btn-list {
   background-color: #5e7a7d;

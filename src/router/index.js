@@ -18,10 +18,6 @@ import Manager_Users from '@/views/manager/Manager_Users.vue';
 
 const routes = [
   {
-    path: '/home',
-    component: Layout,
-    children: [
-      {
         path: '/manager',
         name: 'Manager',
         component: Manager,
@@ -53,6 +49,10 @@ const routes = [
           }
         ]
       },
+  {
+    path: '/home',
+    component: Layout,
+    children: [    
       {
         path: '/myorders',
         name: 'MyOrders',

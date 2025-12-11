@@ -19,7 +19,7 @@
       <table v-else>
         <thead>
           <tr>
-            <th>使用者名稱 (ID)</th>
+            <th>使用者名稱</th>
             <th>電子郵件 (Email)</th>
             <th>權限/角色</th>
             <th>操作</th>

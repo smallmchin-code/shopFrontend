@@ -1,22 +1,15 @@
 // stores/cartStore.js
 
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-
+import { ref, computed , watch} from 'vue';
+const CART_STORAGE_KEY = 'my_shop_cart';
 export const useCartStore = defineStore('cart', () => {
-    // 狀態 (State)
-    // 購物車項目，包含商品物件和數量
-    const items = ref([]); 
-
+    const initialItems = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || '[]');
+    const items = ref(initialItems); 
     // Getter
     // 購物車總數量
     const totalItems = computed(() => items.value.reduce((total, item) => total + item.quantity, 0));
 
-    // Actions
-    /**
-     * 加入商品到購物車
-     * @param {Object} product - 要加入的商品物件 (需包含 id, name, price, stock)
-     */
     const totalPrice = computed(() =>
         items.value.reduce((total, item) => total + (item.price * item.quantity), 0)
     );
@@ -60,5 +53,14 @@ export const useCartStore = defineStore('cart', () => {
     function clearCart() {
         items.value = [];
     }
+
+watch(items, (newItems) => {
+        // 將 items 陣列轉換為 JSON 字串並儲存
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newItems));
+        console.log('購物車已存儲到 localStorage');
+    }, { 
+        deep: true // 深度監聽，確保 items 陣列中的物件屬性變化（如 quantity 增加）也能觸發儲存
+    });
+
     return { items, totalItems,totalPrice, addToCart ,removeFromCart,clearCart};
 });

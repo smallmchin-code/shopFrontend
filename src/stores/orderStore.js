@@ -4,7 +4,7 @@ import { useStore as useUserStore } from '@/stores/usestore'; // 引入使用者
 import { useCartStore } from '@/stores/cartStore'; // 引入購物車 Store (請確保路徑正確)
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:8080/sean/api/orders";
+const BASE_URL = "http://localhost:8080/api/orders";
 
 export const useOrderStore = defineStore('order', () => {
     // 狀態 (State)
@@ -15,11 +15,7 @@ export const useOrderStore = defineStore('order', () => {
 
     // 【新增】只返回當前登入使用者訂單的 Getter
     const userOrders = computed(() => orders.value);
-    /**
-     * 動作 (Actions)
-     * 創建新訂單：將購物車內容轉換為訂單
-     * @returns {Object} 包含 success 和 message 的結果物件
-     */
+   
 
     async function fetchAllOrders() {
         try {
@@ -66,7 +62,7 @@ export const useOrderStore = defineStore('order', () => {
 
         // 模擬生成訂單 ID 和時間
         const orderData = {
-            userId: userStore.currentUser.username, 
+            userId: userStore.currentUser.id, 
             items: cartStore.items.map(item => ({ 
                 // 傳遞足夠的資訊讓後端知道下了哪些商品
                 productId: item.id, 
@@ -81,8 +77,6 @@ export const useOrderStore = defineStore('order', () => {
         try {
             const res = await axios.post(BASE_URL, orderData); // 👈 使用 axios.post 傳送
             const newOrder = res.data; // 假設後端返回新建立的訂單物件
-
-            // 成功後清空購物車 (此時 cartStore.js 必須包含 clearCart 函式)
             cartStore.clearCart(); 
             
             // [可選] 如果您希望在結帳後立即看到這筆訂單，可以將其添加到 orders.value 中

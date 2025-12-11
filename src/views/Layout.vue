@@ -14,6 +14,7 @@
       <!-- <img :src="logo" class="site-title" alt=""> -->
 
       <!-- 右側：導覽列 -->
+      
       <ul :class="{ active: isMenuOpen }">
         <li @click="closeMenu"><router-link to="/">首頁</router-link></li>
         <li @click="closeMenu"><router-link to="/products">所有商品</router-link></li>
@@ -43,12 +44,13 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useStore } from '@/stores/usestore'; // 引入 Pinia Store
+import { useStore } from '@/stores/usestore'; 
 
 const usestore = useStore();
 
 const router = useRouter();
 const isMenuOpen = ref(false);
+
 
 function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value;
@@ -60,9 +62,8 @@ function closeMenu() {
 
 async function handleLogout() {
   await usestore.logoutUser();
-  closeMenu(); // 關閉手機選單
+  closeMenu();
   alert('您已登出');
-  // 導航回首頁或登入頁
   router.push('/'); 
 }
 </script>

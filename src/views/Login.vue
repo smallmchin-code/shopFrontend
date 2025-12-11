@@ -70,8 +70,7 @@ async function handleRegister() {
     password: password.value,
     email: email.value
   });
-  
-  alert(result.message);
+
 
   if (result.success) {
     // 註冊成功後自動切換到登入表單
@@ -93,11 +92,12 @@ async function handleLogin() {
   alert(result.message);
 
   if (result.success) {
-    // 登入成功後導航到首頁
-    router.push('/'); 
+    if (usestore.currentUser.username === 'admin') {
+      router.push('manager/products'); 
+    } else {
+      router.push('/'); 
+    }
   }
-  
-  // 無論成功失敗，清空密碼
   loginPassword.value = ''; 
 }
 </script>
