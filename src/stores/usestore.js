@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import axios from 'axios';
 
+axios.defaults.withCredentials = true;
 const BASE_URL = 'http://localhost:8080/api/users'
 export const useStore = defineStore('user', () => {
   // 狀態 (State)
@@ -15,19 +16,15 @@ export const useStore = defineStore('user', () => {
   
 
   const allUsers = computed(() => users.value);
-  // 動作 (Actions)
 
   // 註冊 (POST /api/users)
   async function registerUser({ username, password, email }) {
     try {
-      // 發送 POST 請求到後端 /api/users 進行註冊
       const response = await axios.post(BASE_URL, { username, password, email });
       console.log('註冊成功:', response.data);
-      // 假設後端返回 { success: true, message: '...' }
       return response.data;
     } catch (error) {
       console.error('註冊失敗:', error);
-      // 處理 HTTP 錯誤 (例如 409 Conflict)
       return { success: false, message: error.response?.data?.message || '註冊失敗，伺服器錯誤' };
     }
   }
@@ -37,12 +34,15 @@ export const useStore = defineStore('user', () => {
     try {   
       const response = await axios.post(`${BASE_URL}/login`, { username, password });
       const user = response.data;
+      if (!user || user === null) {
+        throw new Error('無效的使用者資料');
+      }
       currentUser.value = {
         username: user.username,
         email: user.email,
         id: user.id 
       };
-      localStorage.setItem('user_id', user.id);
+      //localStorage.setItem('user_id', user.id);
       return { success: true, message: '登入成功' };
     } catch (error) {
       console.error('登入失敗:', error);
@@ -60,7 +60,7 @@ export const useStore = defineStore('user', () => {
       console.warn('登出時發生錯誤 (可能不影響前端登出):', error);
     } finally {
       currentUser.value = null;
-      localStorage.removeItem('user_id');
+      //localStorage.removeItem('user_id');
     }
   }
 
@@ -100,11 +100,9 @@ export const useStore = defineStore('user', () => {
   }
 
 async function initializeAuth() {
-    const userId = localStorage.getItem('user_id'); 
-    
-    if (userId) {
+    //const userId = localStorage.getItem('user_id');   
       try {
-        const response = await axios.get(`${BASE_URL}/${userId}`); 
+        const response = await axios.get(`${BASE_URL}/me`); 
         const user = response.data;
 
         // 恢復 currentUser 狀態
@@ -115,12 +113,15 @@ async function initializeAuth() {
         };
         console.log('Auth initialized: Restored login state from localStorage.');
       } catch (error) {
-        // ID 無效或伺服器錯誤時，清除本地儲存的 ID
-        console.error('Failed to restore auth state:', error);
-        localStorage.removeItem('user_id');
+        if (error.response && error.response.status === 401) {
+            console.log('Auth initialized: No active session found (Expected 401).');
+        } else {
+            console.error('Auth initialization failed due to server error:', error);
+        }
+        //localStorage.removeItem('user_id');
         currentUser.value = null;
       }
-    }
+
   }
 
   // 💡 立即執行檢查以恢復狀態

@@ -2,7 +2,6 @@
   <div>
     <div class="home-main-head">
       <div>
-        
       </div>
       <form class="search" @submit.prevent="handleSearch">
   <input 
@@ -42,32 +41,14 @@ import GoodsList from '../components/GoodsList.vue';
 import Main1 from '@/assets/goods/Home-main1.png';
 import Main2 from '@/assets/goods/Home-main2.png';
 import { useProductStore } from '@/stores/productStore.js';
-import { useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia';
 
-const router = useRouter();
-const productStore = useProductStore();
-const { searchGoodsByName , fetchAllGoods } = productStore;
-const { allGoods } = storeToRefs(productStore);
-
-onMounted(async () => {
-    try {
-        await fetchAllGoods(); // 👈 呼叫異步 Action 載入商品
-    } catch (error) {
-        console.error("載入商品失敗:", error);
-        // 可選：向用戶顯示錯誤訊息
-        alert('載入商品列表失敗，請檢查伺服器連線。'); 
-    }
-});
+const productStore = useProductStore();const { searchGoodsByName , fetchAllGoods } = productStore;
 
 const images = [Main1, Main2];
 const currentIndex = ref(0); 
 let intervalId = null;       
-
 const searchQuery = ref('');
-// 2. 實現切換邏輯
 const nextImage = () => {
-  // 循環切換索引 (0 -> 1 -> 0...)
   currentIndex.value = (currentIndex.value + 1) % images.length;
 };
 

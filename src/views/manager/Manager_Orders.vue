@@ -24,9 +24,9 @@
         <tbody>
           <tr v-for="order in orders" :key="order.id">
             <td>{{ order.id }}</td>
-            <td>{{ order.userId }}</td>
+            <td>{{ order.user.id }}</td>
             <td>NT$ {{ order.totalAmount ? order.totalAmount.toLocaleString() : '0.00' }}</td>
-            <td>{{ order.date }}</td>
+            <td>{{ order.orderDate }}</td>
             <td>
                 <span :class="['status-tag', 'status-' + order.status.replace(/[^a-z0-9]/gi, '').toLowerCase()]">
                     {{ order.status }}
@@ -53,8 +53,8 @@
     <div v-if="selectedOrder" class="order-detail-modal-overlay" @click.self="selectedOrder = null">
       <div class="order-detail-modal">
         <h3>訂單詳情 #{{ selectedOrder.id }}</h3>
-        <p><strong>用戶：</strong> {{ selectedOrder.userId }}</p>
-        <p><strong>日期：</strong> {{ selectedOrder.date }}</p>
+        <p><strong>用戶：</strong> {{ selectedOrder.user.id }}</p>
+        <p><strong>日期：</strong> {{ selectedOrder.orderDate }}</p>
         <p><strong>總價：</strong> NT$ {{ selectedOrder.totalAmount ? selectedOrder.totalAmount.toLocaleString() : '0.00' }}</p>
         <p><strong>狀態：：</strong> 
             <span :class="['status-tag', 'status-' + selectedOrder.status.replace(/[^a-z0-9]/gi, '').toLowerCase()]">

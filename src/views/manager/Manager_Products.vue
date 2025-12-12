@@ -25,7 +25,7 @@
         <tbody>
           <tr v-for="product in allGoods" :key="product.id">
             <td>{{ product.id }}</td>
-            <td><img :src="product.image" :alt="product.name" class="product-thumb"></td>
+            <td><img :src="getProductImageUrl(product)" :alt="product.name" class="product-thumb"></td>
             <td>{{ product.name }}</td>
             <td>{{ product.category }}</td>
             <td>${{ product.price }}</td>
@@ -50,7 +50,17 @@ import router from '@/router';
 import { useProductStore } from '@/stores/productStore.js';
 
 const productStore = useProductStore();
-const allGoods = computed(() => productStore.allGoods);
+const allGoods = computed(() => productStore.goods);
+
+
+const getProductImageUrl = (product) => {
+    const imageId = product.images?.[0]?.id; 
+    
+    if (imageId) { 
+        return `http://localhost:8080/api/products/images/${imageId}`; 
+    }
+    return '/path/to/default-image.png'; 
+};
 
 // --- 新增狀態管理 ---
 const isLoading = ref(true); // 載入狀態

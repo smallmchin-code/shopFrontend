@@ -41,10 +41,14 @@ export const useOrderStore = defineStore('order', () => {
             // 假設後端會根據當前用戶的 Session/Token 來過濾訂單
             const res = await axios.get(`${BASE_URL}/myorders`); // 假設這個 endpoint 專門給客戶
             orders.value = res.data; // 覆寫 orders 狀態
+            return { success: true };
         } catch (error) {
             console.error('載入使用者訂單失敗:', error);
             orders.value = [];
-            throw error;
+            if (error.response?.status === 401) {
+                return { success: false, message: '請先登入才能查看訂單。' };
+            }
+            return { success: false, message: '載入訂單失敗。' };
         }
     }
 

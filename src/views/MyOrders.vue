@@ -40,18 +40,28 @@
           
           <div class="order-body">
             <ul class="item-summary">
-              <li v-for="(item, index) in order.items" :key="item.id">
-                <span class="item-name">{{ item.name }}</span>
+              <li v-for="(item, index) in order.orderItems" :key="item.id">
+                <span class="item-name">{{ item.product.name }}</span>
                 <span class="item-qty">x {{ item.quantity }}</span>
                 <span v-if="index < 1" class="more-items">
-                    <span v-if="order.items.length > 1"> (共 {{ order.items.length }} 項)</span>
+                    <span v-if="order.orderItems.length > 1"> (共 {{ order.orderItems.length }} 項)</span>
                 </span>
               </li>
             </ul>
             
             <div class="order-footer">
-              <p class="order-date">下單日期: {{ order.date }}</p>
-              <p class="order-total">總金額: <strong>NT$ {{ order.totalPrice.toLocaleString() }}</strong></p>
+              <p class="order-date">
+                下單日期: {{ 
+                  order.date 
+                    ? (order.orderDate).toLocaleString('zh-TW', { timeStyle: 'short', dateStyle: 'short' }) 
+                    : '無紀錄' 
+                }}
+              </p>
+              <p class="order-total">
+               總金額: <strong>NT$ {{ 
+                 order.totalAmount?.toLocaleString('zh-TW') ?? '0' 
+               }}</strong>
+              </p>
             </div>
           </div>
         </div>
@@ -61,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, computed , onMounted } from 'vue';
+import { ref, computed , onMounted , watch } from 'vue';
 import { useOrderStore } from '@/stores/orderStore';
 import { useStore as useUserStore } from '@/stores/usestore'; // 假設使用者 Store 導出 useStore
 import { storeToRefs } from 'pinia';
@@ -73,14 +83,16 @@ const { fetchUserOrders } = orderStore;
 
 // ---------------- 狀態與邏輯 ----------------
 
+
+
 const currentStatusFilter = ref('all');
 
 // 狀態映射表 (用於顯示名稱)
 const statusMap = {
-    '待處理': '待出貨', // 待處理 = 待出貨
-    '已發貨': '已出貨',
-    '已完成': '已送達', // 已完成 = 已送達
-    '已取消': '已取消'
+    'PENDING': '待出貨', // PENDING = 待出貨
+    'SHIPPED': '已出貨',
+    'COMPLETED': '已送達', // 已完成 = 已送達
+    'CANCELLED': '已取消'
 };
 
 // 狀態類別映射 (用於 CSS)
@@ -91,10 +103,10 @@ const statusClass = (status) => {
 // 1. 將用戶訂單依狀態分組
 const groupedOrders = computed(() => {
     const groups = {
-        '待處理': [],
-        '已發貨': [],
-        '已完成': [],
-        '已取消': []
+        'PENDING': [],
+        'SHIPPED': [],
+        'COMPLETED': [],
+        'CANCELLED': []
     };
     
     // 遍歷用戶訂單，按狀態歸類
@@ -117,17 +129,29 @@ const filteredOrders = computed(() => {
     return groupedOrders.value[currentStatusFilter.value] || [];
 });
 
-onMounted(async () => { // 👈 新增 onMounted
-    // 只有在登入狀態下才嘗試載入
+const loadOrders = async () => {
     if (userStore.isLoggedIn) {
         try {
-            await fetchUserOrders(); // 👈 呼叫異步載入使用者訂單
+            await fetchUserOrders();
         } catch (error) {
+            // 由於 401 已經在 orderStore.js 中處理，這裡只處理其他嚴重錯誤
             alert('載入您的訂單失敗，請檢查連線。');
             console.error('Fetch user orders failed:', error);
         }
+    } else {
+        // 可選：當狀態變為未登入時，清空本地訂單列表 ( aunque orderStore 應該已處理)
+        userOrders.value = []; 
     }
-});
+};
+
+// 💡 關鍵修正：使用 watch 監聽登入狀態的變化
+watch(() => userStore.isLoggedIn, (isLoggedIn) => {
+    if (isLoggedIn) {
+        console.log("登入狀態已確認，開始載入訂單...");
+        loadOrders();
+    }
+}, { immediate: true });
+
 
 </script>
 

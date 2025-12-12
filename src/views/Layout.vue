@@ -64,7 +64,7 @@ async function handleLogout() {
   await usestore.logoutUser();
   closeMenu();
   alert('您已登出');
-  router.push('/'); 
+  router.push('/login'); 
 }
 </script>
 
