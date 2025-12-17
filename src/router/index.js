@@ -7,6 +7,7 @@ import Layout from '../views/Layout.vue';
 import ProductDetail from '@/views/ProductDetail.vue';
 import ProductList from '@/views/ProductList.vue'; // 請確保路徑正確
 import MyOrders from '@/views/MyOrders.vue';
+import OrderToPay from '@/views/OrderToPay.vue';
 
 // manager
 import EditProduct from '@/views/manager/EditProduct.vue';
@@ -48,6 +49,11 @@ const routes = [
             component: EditProduct,
           }
         ]
+      },
+      {
+        path: '/topay',
+        name: 'OrderToPay',
+        component: OrderToPay,
       },
   {
     path: '/home',
@@ -92,7 +98,7 @@ const routes = [
         path: '/cart',
         name: 'Cart',
         component: Cart,
-      },
+      }
     ]
   }
 ];

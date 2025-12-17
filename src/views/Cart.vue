@@ -61,7 +61,7 @@ async function handleCheckout() {
 
         if (result.success) {
             // 成功後導向我的訂單頁面會更合適
-            router.push('/'); 
+            router.push('/topay'); 
         }
     } else {
         alert('您已取消送出訂單。');

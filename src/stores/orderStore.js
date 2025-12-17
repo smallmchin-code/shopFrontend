@@ -15,6 +15,9 @@ export const useOrderStore = defineStore('order', () => {
 
     // 【新增】只返回當前登入使用者訂單的 Getter
     const userOrders = computed(() => orders.value);
+
+    // 💡 新增：用來儲存成功建立訂單後回傳的綠界參數
+    const latestOrderResponse = ref(null);
    
 
     async function fetchAllOrders() {
@@ -39,7 +42,7 @@ export const useOrderStore = defineStore('order', () => {
         
         try {
             // 假設後端會根據當前用戶的 Session/Token 來過濾訂單
-            const res = await axios.get(`${BASE_URL}/myorders`); // 假設這個 endpoint 專門給客戶
+            const res = await axios.get(`${BASE_URL}/myorders` , { withCredentials: true } ); // 假設這個 endpoint 專門給客戶
             orders.value = res.data; // 覆寫 orders 狀態
             return { success: true };
         } catch (error) {
@@ -65,7 +68,7 @@ export const useOrderStore = defineStore('order', () => {
         }
 
         // 模擬生成訂單 ID 和時間
-        const orderData = {
+        const orderRequest = {
             userId: userStore.currentUser.id, 
             items: cartStore.items.map(item => ({ 
                 // 傳遞足夠的資訊讓後端知道下了哪些商品
@@ -79,14 +82,16 @@ export const useOrderStore = defineStore('order', () => {
         };
 
         try {
-            const res = await axios.post(BASE_URL, orderData); // 👈 使用 axios.post 傳送
+            const res = await axios.post(BASE_URL, orderRequest , { withCredentials: true }); // 👈 使用 axios.post 傳送
             const newOrder = res.data; // 假設後端返回新建立的訂單物件
+
+            latestOrderResponse.value = newOrder;
             cartStore.clearCart(); 
             
             // [可選] 如果您希望在結帳後立即看到這筆訂單，可以將其添加到 orders.value 中
             // orders.value.unshift(newOrder);
 
-            return { success: true, message: `訂單 ${newOrder.id || '已成功'} 成立成功！` };
+            return { success: true, message: `訂單 ${newOrder.orderid || '已成功'} 成立成功！，準備導向付款頁。` };
         } catch (error) {
             console.error('創建訂單失敗:', error.response?.data || error.message);
             return { success: false, message: `結帳失敗：${error.response?.data?.message || '伺服器錯誤'}` };
@@ -119,6 +124,7 @@ export const useOrderStore = defineStore('order', () => {
         orders, 
         totalOrders,
         userOrders, 
+        latestOrderResponse,
         createOrder, 
         updateOrderStatus,
         fetchAllOrders, 
