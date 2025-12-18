@@ -3,8 +3,14 @@ import { ref } from 'vue';
 import { useProductStore } from '@/stores/productStore'; // 確保路徑正確
 // import { useRouter } from 'vue-router'; // 建議：提交成功後跳轉頁面
 
-const productStore = useProductStore();
-// const router = useRouter(); // 實例化 router
+const variants = ref([{ size: '', stock: 0 }]);
+const addVariant = () => {
+    variants.value.push({ size: '', stock: 0 });
+};
+const removeVariant = (index) => {
+    variants.value.splice(index, 1);
+};
+const productStore = useProductStore()
 
 const isMoreImgs = ref(false);
 const toggleMoreImgs = () => {
@@ -12,29 +18,14 @@ const toggleMoreImgs = () => {
 };
 
 const handleSubmit = async (event) => {
-    // 阻止表單的預設提交行為，防止頁面刷新
     event.preventDefault(); 
-    
-    // 1. 取得表單數據
-    // FormData 會自動處理檔案和欄位數據
     const formData = new FormData(event.target);
-    
-    // 🌟 注意：您的表單使用了兩個不同的 <input type="file">，
-    // name="imageismain" 和 name="imagedata" (multiple)
-    // 這裡的 FormData 會自動包含所有 name 屬性的值
-    
+    formData.append('variantsJson', JSON.stringify(variants.value));
     try {
-        // 2. 呼叫 Pinia Action 傳送 FormData
-        const newProduct = await productStore.createProduct(formData);
-        
-        // 3. 處理成功：顯示通知或跳轉
-        alert(`商品 "${newProduct.name}" 新增成功！`);
-        // router.push({ name: 'ProductManager' }); // 提交成功後跳轉到商品管理頁面
-        
+        await productStore.createProduct(formData);
+        alert("商品新增成功！");
     } catch (error) {
-        // 4. 處理失敗
-        alert('新增商品失敗，請檢查網路或後端 API 錯誤。');
-        console.error("提交錯誤:", error);
+        console.error(error);
     }
 };
 </script>
@@ -58,22 +49,18 @@ const handleSubmit = async (event) => {
     <label for="price">商品價格 ($)</label>
     <input type="number" id="price" name="price" placeholder="請輸入合理的價格" min="0">
     
-    <label for="size">商品尺寸</label>
-    <select id="size" name="size">
-        <option value="" disabled selected>請選擇尺寸</option>
-        <option value="XS">XS (特小)</option>
-        <option value="S">S (小)</option>
-        <option value="M">M (中)</option>
-        <option value="L">L (大)</option>
-        <option value="XL">XL (特大)</option>
-        <option value="OneSize">均碼</option>
-    </select>
-    
+    <div class="form-group">
+    <label>商品規格 (尺寸與庫存):</label>
+    <div v-for="(variant, index) in variants" :key="index" class="variant-row">
+        <input type="text" v-model="variant.size" placeholder="尺寸 (如: M)" required>
+        <input type="number" v-model="variant.stock" placeholder="庫存" required>
+        <button type="button" @click="removeVariant(index)" v-if="variants.length > 1">刪除</button>
+    </div>
+    <button type="button" @click="addVariant" class="btn-add">＋ 新增尺寸</button>
+</div>
+   
     <label for="description">商品描述</label>
     <textarea id="description" name="description" placeholder="請詳細描述材質、磨損狀況、新舊程度等..."></textarea>
-    
-    <label for="stock">商品庫存量</label>
-    <input type="number" id="stock" name="stock" placeholder="一般為 1" min="1">
     
     <label for="category">商品分類</label>
     <select id="category" name="category">

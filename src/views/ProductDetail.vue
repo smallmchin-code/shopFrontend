@@ -1,9 +1,8 @@
-
 <template>
-  <div v-if="product" class="product-card" :class="{ 'out-of-stock': product.stock === 0 }">    
+  <div v-if="product" class="product-card" :class="{ 'out-of-stock': !selectedVariant || selectedVariant.stock === 0 }">    
     <div class="product-image-container">
       <img :src="productImageUrl" :alt="product.name" class="product-image" />
-      <div v-if="product.stock === 0" class="stock-overlay">
+      <div v-if="selectedVariant && selectedVariant.stock === 0" class="stock-overlay">
         已售罄 (Out of Stock)
       </div>
     </div>
@@ -13,19 +12,34 @@
       <p class="product-category">分類: {{ product.category }}</p>
 
       <div class="product-price">
+        <p class="price-tag">價格: ${{ product.price }}</p>
       </div>
       
+      <div class="variant-selector-section">
+        <p class="section-title">選擇尺寸：</p>
+        <div class="size-options">
+          <button 
+            v-for="v in product.variants" 
+            :key="v.id"
+            class="size-btn"
+            :class="{ 'active': selectedVariant?.id === v.id, 'disabled': v.stock === 0 }"
+            :disabled="v.stock === 0"
+            @click="onSizeSelect(v)"
+          >
+            {{ v.size }}
+          </button>
+        </div>
+      </div>
+
       <div class="product-details">
-        <span class="detail-tag">尺寸: {{ product.size }}</span>
-        <span class="detail-tag" :class="{ 'low-stock': product.stock <= 5 && product.stock > 0 }">
-          庫存: {{ product.stock }}
+        <span class="detail-tag" v-if="selectedVariant">目前尺寸: {{ selectedVariant.size }}</span>
+        <span class="detail-tag" :class="{ 'low-stock': selectedVariant?.stock <= 5 && selectedVariant?.stock > 0 }">
+          庫存: {{ selectedVariant ? selectedVariant.stock : '請選擇' }}
         </span>
       </div>
 
       <div class="product-description">
-        <p>
-          {{ displayDescription }}
-        </p>
+        <p>{{ displayDescription }}</p>
         <button v-if="requiresExpansion" @click="toggleDescription" class="read-more-button">
           {{ isExpanded ? '收起 ▲' : '查看更多 ▼' }}
         </button>
@@ -33,327 +47,284 @@
 
       <div class="product-actions">
         <button 
-          @click="handleAddToCart" :disabled="product.stock === 0" 
-          class="add-to-cart-btn"
+          class="add-to-cart-btn" 
+          :disabled="!selectedVariant || selectedVariant.stock === 0"
+          @click="handleAddToCart"
         >
-          {{ product.stock > 0 ? '加入購物車' : '缺貨中' }}
+          {{ !selectedVariant ? '請選擇尺寸' : (selectedVariant.stock > 0 ? '加入購物車' : '已售罄') }}
         </button>
-        <button class="favorite-btn">❤</button>
       </div>
     </div>
   </div>
-  <div v-else class="loading-state">
-    商品載入中，或此商品不存在...
-  </div>
+  <div v-else class="loading-state">載入中...</div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router'; 
-import { useProductStore } from '@/stores/productStore.js'; 
-import { useCartStore } from '@/stores/cartStore.js'; 
+import { ref, onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { useProductStore } from '@/stores/productStore';
+import { useCartStore } from '@/stores/cartStore';
 
 const route = useRoute();
-const productStore = useProductStore(); // <-- 取得 Product Store 實例
-const cartStore = useCartStore(); 
-const product = ref(null); 
+const productStore = useProductStore();
+const cartStore = useCartStore();
 
-
-const productImageUrl = computed(() => {
-    // 1. 檢查商品數據和圖片列表是否存在
-    if (product.value && product.value.images && product.value.images.length > 0) {
-        // 2. 假設我們只需要第一張圖 (Main Image 或 Images[0])
-        const imageId = product.value.images[0].id;
-        return `http://localhost:8080/api/products/images/${imageId}`;
-    }
-    
-    // 如果沒有圖片或圖片列表為空，使用預設圖
-    return '/path/to/default-image.png'; // 請替換成您實際的預設圖路徑
-});
+const product = ref(null);
+const selectedVariant = ref(null);
+const isExpanded = ref(false);
 
 onMounted(async () => {
-  const productId = route.params.id; // 假設您的路由設定為 /product/:id
-  if (productId) {
-    try {
-      // 呼叫異步 Action 取得商品資料
-      const fetchedProduct = await productStore.fetchProductById(productId);
-      if (fetchedProduct.variants && fetchedProduct.variants.length > 0) {
-          fetchedProduct.size = fetchedProduct.variants[0].size;
-          fetchedProduct.stock = fetchedProduct.variants[0].stock;
-      }
-      product.value = fetchedProduct; // 將取得的資料存入本地 ref
-    } catch (error) {
-      console.error(`載入商品 ID ${productId} 失敗:`, error);
-      product.value = null; // 載入失敗時清空或顯示錯誤
-      alert('找不到該商品，或伺服器連線失敗。');
-    }
+  const id = route.params.id;
+  const data = await productStore.fetchProductById(id);
+  product.value = data;
+  
+  // 初始化：選中第一個有庫存的尺寸
+  if (data?.variants?.length > 0) {
+    selectedVariant.value = data.variants.find(v => v.stock > 0) || data.variants[0];
   }
 });
 
-
-// ----------------------------------------------------
-// 2. 狀態與計算屬性 (使用 product.value)
-
-// ----------------------------------------------------
-
-// 處理描述文字的展開/收起
-const isExpanded = ref(false);
-const maxDescriptionLength = 70; 
-
-// 判斷是否需要「查看更多」按鈕
-const requiresExpansion = computed(() => {
-  // 必須檢查 product.value 是否存在
-  return product.value?.description && product.value.description.length > maxDescriptionLength;
-});
-
-// 實際顯示的描述文字
-const displayDescription = computed(() => {
-  if (!product.value) return '載入中...';
-  if (isExpanded.value || !requiresExpansion.value) {
-    return product.value.description;
-  }
-  return product.value.description.substring(0, maxDescriptionLength) + '...';
-});
-
-// 將價格格式化
-const formattedPrice = computed(() => {
-  return product.value ? product.value.price.toLocaleString('en-US') : 'N/A';
-});
-
-// ----------------------------------------------------
-// 3. 方法 (Methods)
-// ----------------------------------------------------
-const toggleDescription = () => {
-  isExpanded.value = !isExpanded.value;
+const onSizeSelect = (v) => {
+  selectedVariant.value = v;
 };
 
-// 新增加入購物車的方法
-function handleAddToCart() {
-  if (!product.value) {
-    alert('商品資訊尚未載入。');
-    return;
+// 圖片處理
+const productImageUrl = computed(() => {
+  if (product.value?.images?.length > 0) {
+    const mainImg = product.value.images.find(img => img.main) || product.value.images[0];
+    return `http://localhost:8080/api/products/images/${mainImg.id}`;
   }
-  if (product.value.stock === 0) {
-    alert('此商品已售罄，無法加入購物車。');
+  return '/path/to/default.png';
+});
+
+// 描述文字長度控制
+const displayDescription = computed(() => {
+  if (!product.value?.description) return "";
+  return isExpanded.value ? product.value.description : product.value.description.slice(0, 100) + "...";
+});
+const requiresExpansion = computed(() => product.value?.description?.length > 100);
+const toggleDescription = () => isExpanded.value = !isExpanded.value;
+
+const handleAddToCart = () => {
+  if (!selectedVariant.value) {
+    alert('請選擇規格');
     return;
   }
   
-  // 呼叫 cartStore 的 addToCart Action，傳入完整的商品物件
-  cartStore.addToCart(product.value); 
-  alert(`商品「${product.value.name}」已加入購物車！`);
-}
+  cartStore.addToCart({
+    id: product.value.id,
+    variantId: selectedVariant.value.id,
+    name: product.value.name,
+    price: product.value.price,
+    image: productImageUrl.value,
+    size: selectedVariant.value.size,
+    stock: selectedVariant.value.stock,
+    quantity: 1
+  });
+  alert(`已將 ${product.value.name} (${selectedVariant.value.size}) 加入購物車`);
+};
 </script>
+
 <style scoped>
-
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&display=swap'); 
-
+/* Base Layout */
 .product-card {
-  /* ------------------- 整體卡片容器 ------------------- */
-  font-family: 'Merriweather', serif; /* 復古襯線字體 */
-  background-color: #fcf8f0; /* 舊紙張或米白色 */
-  border: 2px solid #a89f8a; /* 粗糙的邊框 */
-  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 0.25); 
-  border-radius: 4px;
-  padding: 25px;
-  max-width: 800px;
-  margin: 50px auto;
   display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
-  color: #3e3e3e; /* 復古深色文字 */
-}
-
-/* 缺貨時，整體卡片略微褪色 */
-.out-of-stock {
-    opacity: 0.7;
-    filter: grayscale(0.2);
-}
-
-/* ------------------- 圖片區塊 ------------------- */
-.product-image-container {
-  flex: 1 1 350px; /* 彈性佈局，最小寬度 350px */
-  position: relative;
-  overflow: hidden;
-  border: 1px solid #7c7365;
+  max-width: 960px;
+  margin: 2rem auto;
   background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  position: relative;
+  transition: opacity 0.3s ease;
+}
+
+.product-card.out-of-stock {
+  opacity: 0.7;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.2em;
+  color: #888;
+}
+
+/* Image Section */
+.product-image-container {
+  flex: 1 1 50%;
+  position: relative;
+  background-color: #f7f7f7;
 }
 
 .product-image {
   width: 100%;
-  height: auto;
-  display: block;
+  height: 100%;
+  object-fit: cover;
 }
 
 .stock-overlay {
-  /* 售罄標籤樣式 */
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-10deg); /* 旋轉角度增加手寫感 */
-  width: 120%;
-  background-color: rgba(181, 73, 59, 0.8);
-  color: #f7f3e9;
-  padding: 15px 0;
-  text-align: center;
-  font-size: 1.8em;
-  font-weight: 700;
-  border: 3px dashed #f7f3e9; /* 虛線邊框 */
-  letter-spacing: 2px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+  font-weight: bold;
 }
 
-/* ------------------- 商品資訊 ------------------- */
+/* Info Section */
 .product-info {
-  flex: 1 1 350px;
-  padding: 10px 0;
+  flex: 1 1 50%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-name {
-  font-family: 'Playfair Display', serif; /* 標題使用更有特色的字體 */
-  font-size: 2.8em;
-  font-weight: 700;
-  color: #4a4a4a;
-  margin-bottom: 5px;
-  border-bottom: 2px solid #5e7a7d; /* 復古藍綠色的底線 */
-  display: inline-block;
-  padding-bottom: 5px;
+  font-size: 2em;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: #333;
 }
 
 .product-category {
-  font-size: 0.95em;
-  color: #7b7b7b;
-  margin-bottom: 20px;
-  font-style: italic;
+  font-size: 0.9em;
+  color: #888;
+  margin-bottom: 1rem;
 }
 
 .product-price {
-  font-family: 'Playfair Display', serif;
-  font-size: 3.2em;
-  font-weight: 700;
-  color: #b5493b; /* 復古紅棕色 */
-  margin-bottom: 25px;
-  padding: 5px 0;
+  margin-bottom: 1.5rem;
 }
 
-/* ------------------- 詳細標籤 ------------------- */
-.product-details {
+.price-tag {
+  font-size: 1.8em;
+  font-weight: 500;
+  color: #5e7a7d;
+}
+
+/* Variant Selector */
+.variant-selector-section {
+  margin: 1rem 0;
+}
+
+.section-title {
+  font-size: 1em;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
+.size-options {
   display: flex;
-  gap: 12px;
-  margin-bottom: 25px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.size-btn {
+  padding: 8px 18px;
+  border: 1px solid #5e7a7d;
+  background-color: transparent;
+  color: #5e7a7d;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-weight: bold;
+}
+
+.size-btn:hover:not(.disabled):not(.active) {
+  background-color: #f0f4f4;
+  transform: translateY(-2px);
+}
+
+.size-btn.active {
+  background-color: #5e7a7d;
+  color: #fcf8f0;
+  border-color: #5e7a7d;
+}
+
+.size-btn.disabled {
+  border-color: #ccc;
+  color: #ccc;
+  background-color: #f9f9f9;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+/* Product Details */
+.product-details {
+  margin: 1rem 0;
+  display: flex;
+  gap: 10px;
 }
 
 .detail-tag {
-  background-color: #e0d9c4; /* 淺米色背景 */
-  color: #5d5d5d;
-  padding: 7px 14px;
-  border-radius: 0; /* 方角 */
+  display: inline-block;
+  padding: 6px 14px;
+  background-color: #fcf8f0;
+  border: 1px solid #e0d9c7;
+  border-radius: 4px;
   font-size: 0.9em;
-  border: 1px solid #c7bca6;
-  font-weight: bold;
-  box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 0.1);
+  color: #555;
 }
 
 .low-stock {
-  background-color: #f0ad4e; /* 橙色警告 */
-  color: #fff;
-  border-color: #d19a45;
+  color: #d9534f;
+  font-weight: bold;
+  border-color: #d9534f;
 }
 
-/* ------------------- 描述區塊 ------------------- */
+/* Description */
 .product-description {
-  margin-bottom: 30px;
-  padding-top: 15px;
-  border-top: 1px dashed #c7bca6; /* 虛線分隔 */
-  color: #5d5d5d;
-  line-height: 1.7;
+  font-size: 0.95em;
+  color: #666;
+  line-height: 1.6;
+  margin: 1rem 0;
+  flex-grow: 1; /* Pushes actions to the bottom */
 }
 
 .read-more-button {
-  background-color: #5e7a7d; /* 復古藍綠色 */
-  color: #fcf8f0;
+  background: none;
   border: none;
-  padding: 10px 18px;
-  border-radius: 3px;
-  cursor: pointer;
-  margin-top: 15px;
-  font-family: 'Merriweather', serif;
-  font-size: 0.9em;
-  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-}
-
-.read-more-button:hover {
-  background-color: #4a6365;
-  box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 0.1);
-  transform: translate(1px, 1px);
-}
-
-/* ------------------- 動作按鈕 ------------------- */
-.product-actions {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 1px solid #a89f8a;
-}
-
-.add-to-cart-btn,
-.favorite-btn {
-  padding: 12px 25px;
-  font-size: 1.1em;
+  color: #5e7a7d;
   font-weight: bold;
-  border: 2px solid #5e7a7d; /* 粗邊框 */
-  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Playfair Display', serif;
-  box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 0.2);
+  padding: 0.25rem 0;
+  margin-top: 0.5rem;
+}
+
+/* Actions */
+.product-actions {
+  margin-top: auto; /* Pushes to the bottom */
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
 }
 
 .add-to-cart-btn {
-  background-color: #5e7a7d; 
-  color: #fcf8f0; 
-  flex-grow: 1;
+  width: 100%;
+  padding: 12px;
+  background-color: #5e7a7d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .add-to-cart-btn:hover:not(:disabled) {
-  background-color: #4a6365;
-  box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 0.1);
-  transform: translate(2px, 2px);
+  background-color: #4a6163;
 }
 
 .add-to-cart-btn:disabled {
-  background-color: #a89f8a; /* 缺貨時的顏色 */
-  border-color: #a89f8a;
+  background-color: #b0c4c6;
   cursor: not-allowed;
-  opacity: 0.7;
-  box-shadow: none;
-  transform: none;
-}
-
-.favorite-btn {
-  background-color: #fcf8f0; /* 背景和卡片顏色一致 */
-  color: #b5493b; /* 復古紅棕色心形 */
-  width: 50px;
-  height: 50px;
-  border-radius: 50%; /* 圓形按鈕 */
-  font-size: 1.8em;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid #b5493b;
-}
-
-.favorite-btn:hover {
-  background-color: #b5493b;
-  color: #fcf8f0;
-  box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 0.1);
-  transform: translate(2px, 2px);
-}
-
-.loading-state {
-    text-align: center;
-    margin-top: 50px;
-    font-size: 1.2em;
-    color: #a89f8a;
 }
 </style>

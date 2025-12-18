@@ -7,7 +7,7 @@
     <p>${{ price }}</p>
     
     <button 
-      @click.prevent="handleAddToCart" 
+      
       :disabled="stock === 0" 
       class="add-to-cart-btn-list"
     >
@@ -51,6 +51,9 @@ const handleAddToCart = () => {
     image: imageUrl.value,
     price: props.price,
     stock: props.stock, 
+    variantId:props.id,
+    size: props.size,
+    stock: props.stock,
   });
 };
 </script>

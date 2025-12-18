@@ -18,9 +18,9 @@
           <p class="item-subtotal">小計: NT$ {{ (item.price * item.quantity).toLocaleString() }}</p>
         </div>
         
-        <button @click="removeFromCart(item.id)" class="delete-btn">
-          刪除
-        </button>
+        <button @click="cartStore.removeFromCart(item.id, item.variantId)" class="delete-btn">
+  刪除
+</button>
       </div>
       
       <div class="cart-summary">
@@ -53,6 +53,14 @@ async function handleCheckout() {
         return;
     }
 
+    console.log('購物車內容：', cartStore.items);
+    // 驗證每個商品都有 variantId
+    const invalidItems = cartStore.items.filter(item => !item.variantId);
+    if (invalidItems.length > 0) {
+        alert('購物車中有商品缺少規格資訊，請重新加入購物車');
+        console.error('缺少 variantId 的商品：', invalidItems);
+        return;
+    }
     if (confirm('確定要送出訂單並結帳嗎？')) {
         // 呼叫 Order Store 的異步建立訂單 Action，並使用 await 等待結果
         const result = await orderStore.createOrder(); // 👈 使用 await

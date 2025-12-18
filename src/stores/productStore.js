@@ -22,8 +22,13 @@ export const useProductStore = defineStore('product', () => {
 
     // ② 取得單一商品
     async function fetchProductById(id) {
-        const res = await axios.get(`${BASE_URL}/${id}`)
-        return res.data
+        try {
+            const res = await axios.get(`${BASE_URL}/${id}`);
+            return res.data; // 這裡一定要 return，否則組件拿不到值
+        } catch (error) {
+            console.error('取得單一商品失敗:', error);
+            throw error;
+        }
     }
 
     // ③ 依分類取得商品

@@ -70,14 +70,14 @@ export const useOrderStore = defineStore('order', () => {
         // 模擬生成訂單 ID 和時間
         const orderRequest = {
             userId: userStore.currentUser.id, 
+            totalPrice: cartStore.totalPrice,
             items: cartStore.items.map(item => ({ 
                 // 傳遞足夠的資訊讓後端知道下了哪些商品
                 productId: item.id, 
                 quantity: item.quantity, 
                 price: item.price,
-                name: item.name 
-            })),
-            totalPrice: cartStore.totalPrice,
+                variantId: item.variantId
+            }))
             // ... 其他需要的資訊，例如地址
         };
 

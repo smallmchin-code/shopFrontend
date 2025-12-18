@@ -15,35 +15,34 @@ export const useCartStore = defineStore('cart', () => {
     );
 
     function addToCart(product) {
-        // 確保庫存大於 0
-        if (product.stock <= 0) {
-            alert(`商品「${product.name}」已缺貨，無法加入購物車。`);
-            return;
-        }
-
-        const existingItem = items.value.find(item => item.id == product.id);
+        // 1. 強制確保數量是數字 (避免變成字串拼接)
+    const qtyToAdd = Number(product.quantity) || 1;
+        const existingItem = items.value.find(item => 
+            item.id === product.id && item.variantId === product.variantId
+        );
 
         if (existingItem) {
-            // 檢查是否超過庫存
-            if (existingItem.quantity < product.stock) {
-                existingItem.quantity++;
+            if (existingItem.quantity + qtyToAdd <= product.stock) {
+                existingItem.quantity += qtyToAdd;
             } else {
-                alert(`商品「${product.name}」庫存不足，目前最多只能購買 ${product.stock} 件。`);
+                alert(`庫存不足，目前最多只能購買 ${product.stock} 件。`);
             }
         } else {
-            // 首次加入
+            // 首次加入：儲存完整規格資訊
             items.value.push({
                 id: product.id,
+                variantId: product.variantId, // 🌟 新增規格 ID
                 name: product.name,
                 price: product.price,
                 image: product.image,
-                quantity: 1
+                size: product.size,           // 🌟 記錄選中的尺寸名稱
+                quantity: qtyToAdd,   // 🌟 傳入選擇的數量
+                stock: product.stock          // 🌟 紀錄該規格的最大庫存
             });
         }
-        console.log('購物車內容:', items.value);
     }
-    function removeFromCart(id) {
-        const index = items.value.findIndex(item => item.id == id);
+    function removeFromCart(id ,variantId) {
+        const index = items.value.findIndex( item => item.id === id && item.variantId === variantId);
         if (index !== -1) {
             items.value.splice(index, 1);
         }
