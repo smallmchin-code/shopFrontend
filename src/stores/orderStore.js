@@ -3,7 +3,8 @@ import { ref, computed } from 'vue';
 import { useStore as useUserStore } from '@/stores/usestore'; // 引入使用者 Store
 import { useCartStore } from '@/stores/cartStore'; // 引入購物車 Store (請確保路徑正確)
 import axios from 'axios';
-
+axios.defaults.withCredentials = true; // 確保發送 Cookie
+axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true';
 const BASE_URL = "http://localhost:8080/api/orders";
 
 export const useOrderStore = defineStore('order', () => {

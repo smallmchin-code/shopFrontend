@@ -6,12 +6,6 @@
       </div>
       <nav>
         <ul>
-          <li 
-            :class="{ active: $route.path === '/manager/dashboard' }"
-            @click="router.push('/manager/dashboard')"
-          >
-            📊 儀表板
-          </li>
           <li
             :class="{ active: $route.path === '/manager/products' }"
             @click="router.push('/manager/products')"

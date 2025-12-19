@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import axios from 'axios'
-
+axios.defaults.withCredentials = true; // 確保發送 Cookie
+axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true';
 const BASE_URL = "http://localhost:8080/api/products"
 
 export const useProductStore = defineStore('product', () => {

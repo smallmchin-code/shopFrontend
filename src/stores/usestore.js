@@ -2,7 +2,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import axios from 'axios';
-
+ // 確保發送 Cookie
+axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true';
 axios.defaults.withCredentials = true;
 const BASE_URL = 'http://localhost:8080/api/users'
 export const useStore = defineStore('user', () => {

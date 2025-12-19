@@ -9,11 +9,9 @@ const productStore = useProductStore();
 
 
 const productImageUrl = computed(() => {
-    // 假設第一個圖片是主圖，或者至少是管理頁面要顯示的圖
     const imageId = product.value.images && product.value.images.length > 0 
                   ? product.value.images[0].id 
-                  : null;
-                  
+                  : null;          
     if (imageId) {
         return `http://localhost:8080/api/products/images/${imageId}`;
     }
@@ -70,10 +68,27 @@ const submitForm = async () => {
     product.value.price = Number(product.value.price);
     product.value.stock = Number(product.value.stock);
     
-    console.log('Updating product:', product.value);
+    const updatePayload = {
+        id: product.value.id,
+        name: product.value.name,
+        price: product.value.price,
+        description: product.value.description,
+        category: product.value.category,
+        // 核心修正：將前端的單一 stock/size 轉回後端要求的 variants 陣列
+        variants: [
+            {
+               // 如果原本就有 variant ID 建議帶上，否則後端 clear() 後會視為新增
+               id: (product.value.variants && product.value.variants[0]) ? product.value.variants[0].id : null,
+               size: product.value.size,
+               stock: product.value.stock
+            }
+        ]
+    };
+
+    console.log('Updating product:', updatePayload);
     
     try {
-        await productStore.updateProduct(product.value);
+        await productStore.updateProduct(updatePayload);
         alert(`商品 ${product.value.name} (${product.value.id}) 更新成功！`);
         
         router.push('/manager/products'); 
