@@ -9,6 +9,14 @@ export default defineConfig({
     vue(),
      vueDevTools(),
   ],
+  server: {
+    host: "0.0.0.0",
+    port: 5173,
+    allowedHosts: [".trycloudflare.com"],  // 允許所有 hosts(僅限開發環境)
+  },
+  hmr: {
+    clientPort: 443,
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

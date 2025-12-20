@@ -4,13 +4,13 @@
       <div>
       </div>
       <form class="search" @submit.prevent="handleSearch">
-  <input 
-    type="text" 
-    v-model="searchQuery" 
-    placeholder="輸入完整的商品名稱"
-  >
-  <input type="submit" value="查詢">
-</form>
+        <input 
+          type="text" 
+          v-model="searchQuery" 
+          placeholder="輸入完整的商品名稱"
+        >
+        <input type="submit" value="查詢">
+      </form>
       <div class="my_orders">
         <router-link to="/myorders">想看我的訂單!!</router-link>
       </div>
@@ -40,9 +40,12 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import GoodsList from '../components/GoodsList.vue';
 import Main1 from '@/assets/goods/Home-main1.png';
 import Main2 from '@/assets/goods/Home-main2.png';
+import { useRouter } from 'vue-router';
 import { useProductStore } from '@/stores/productStore.js';
 
-const productStore = useProductStore();const { searchGoodsByName , fetchAllGoods } = productStore;
+const router = useRouter();
+const productStore = useProductStore();
+const { searchGoodsByName , fetchAllGoods } = productStore;
 
 const images = [Main1, Main2];
 const currentIndex = ref(0); 
@@ -56,23 +59,27 @@ const handleSearch = async () => { // 👈 修正為 async
     const query = searchQuery.value.trim();    
     if (query) {
         try {
-            await searchGoodsByName(query); // 👈 呼叫新的異步 Action
+            const results = await searchGoodsByName(query); 
             
-            // 根據搜尋結果給予用戶提示 (可選)
-            if (productStore.goods.length === 0) {
-                 alert(`後端找不到與「${query}」相關的商品。`);
+            if (results && results.length > 0) {
+                // 💡 邏輯：如果只找到一個結果，直接跳轉到該商品的詳情頁
+                if (results.length === 1) {
+                    router.push(`/product/${results[0].id}`);
+                } else {
+                    // 如果有多個結果，留在本頁，GoodsList 會自動更新顯示這些結果
+                    alert(`找到 ${results.length} 個相關商品`);
+                }
             } else {
-                 alert(`找到 ${productStore.goods.length} 個與「${query}」相關的商品。`);
+                alert(`找不到與「${query}」相關的商品。`);
             }
             
         } catch (error) {
             alert('搜尋失敗，請檢查網路或伺服器。');
         }
     } else {
-        // 如果搜尋框為空，重新載入所有商品
         await fetchAllGoods();
     }
-    searchQuery.value = ''; // 清空搜尋框
+    searchQuery.value = '';// 清空搜尋框
 };
 
 // 3. 組件生命週期控制

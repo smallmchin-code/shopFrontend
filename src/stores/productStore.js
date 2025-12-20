@@ -55,16 +55,13 @@ export const useProductStore = defineStore('product', () => {
             await fetchAllGoods(); // 如果搜尋詞為空，載入所有商品
             return;
         }
-        
         try {
-            // 假設後端 API 支援 ?name= 參數來進行模糊或精確查詢
-            const res = await axios.get(`${BASE_URL}?name=${name}`); 
-            goods.value = res.data; // 🎯 將搜尋結果覆蓋到 goods.value
-            
+            // 發送請求到後端，帶上 name 參數
+            const res = await axios.get(`${BASE_URL}?name=${name}`);
+            goods.value = res.data; 
+            return res.data; // 💡 回傳資料讓組件可以判斷長度
         } catch (error) {
-            console.error('從後端搜尋商品失敗:', error);
-            // 錯誤時，將商品列表清空或保持原狀
-            goods.value = [];
+            console.error('搜尋失敗:', error);
             throw error;
         }
     }
