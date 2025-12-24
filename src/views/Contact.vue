@@ -3,7 +3,7 @@
   <div class="contact-page">
     <header class="contact-header">
       <h1 class="page-title">
-        <span class="icon">💬</span> 聯繫我們
+        <span class="icon"></span> 聯繫我們
       </h1>
       <p class="slogan">
         我們隨時在這裡，準備好為您解答任何疑問。
@@ -12,7 +12,7 @@
 
     <div class="contact-sections">
       <section class="info-card primary">
-        <h2 class="card-title">📞   立即與我們聯繫</h2>
+        <h2 class="card-title">   立即與我們聯繫</h2>
         <p class="description">請透過以下最快速的方式與我們取得聯繫：</p>
         <ul class="contact-list">
           <li>
@@ -30,7 +30,7 @@
       </section>
 
       <section class="info-card social">
-        <h2 class="card-title">📱    追蹤我們的社群</h2>
+        <h2 class="card-title">    追蹤我們的社群</h2>
         <p class="description">
           別忘了追蹤我們的社群媒體，獲取最新的穿搭靈感與優惠資訊！
         </p>
@@ -48,7 +48,7 @@
     </div>
     
     <div class="faq-note">
-        找不到您的問題？請先查看我們的 <a href="#">常見問題 (FAQ)</a> 頁面！
+        
     </div>
 
   </div>
