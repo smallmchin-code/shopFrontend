@@ -39,10 +39,11 @@
                 @change="handleStatusChange(order.id, $event.target.value)"
                 class="status-select"
               >
-                <option value="待處理">待處理</option>
-                <option value="已發貨">已發貨</option>
-                <option value="已完成">已完成</option>
-                <option value="已取消">已取消</option>
+                <option value="PENDING">待處理</option>
+                <option value="PROCESSING">已付款/處理中</option>
+                <option value="SHIPPED">已發貨</option>
+                <option value="COMPLETED">已完成</option>
+                <option value="CANCELLED">已取消</option>
               </select>
             </td>
           </tr>
@@ -56,7 +57,7 @@
         <p><strong>用戶：</strong> {{ selectedOrder.user.id }}</p>
         <p><strong>日期：</strong> {{ selectedOrder.orderDate }}</p>
         <p><strong>總價：</strong> NT$ {{ selectedOrder.totalAmount ? selectedOrder.totalAmount.toLocaleString() : '0.00' }}</p>
-        <p><strong>狀態：：</strong> 
+        <p><strong>狀態：</strong> 
             <span :class="['status-tag', 'status-' + selectedOrder.status.replace(/[^a-z0-9]/gi, '').toLowerCase()]">
                 {{ selectedOrder.status }}
             </span>
@@ -104,7 +105,7 @@ function viewOrderDetails(order) {
 async function handleStatusChange(id, newStatus) { // 👈 修正為 async
   if (confirm(`確定要將訂單 ${id} 的狀態更改為「${newStatus}」嗎？`)) {
     // 呼叫異步更新 Action，並使用 await 等待結果
-    const result = await updateOrderStatus(id, newStatus); // 👈 使用 await
+    const result = await orderStore.updateOrderStatus(id, newStatus); // 👈 使用 await
     
     if (result.success) {
         alert(result.message);
@@ -165,12 +166,11 @@ tr:nth-child(even) {
 }
 
 /* 狀態顏色標籤 */
-.status-tag.status-待處理 { background-color: #ffe082; color: #8d6e63; }
-.status-tag.status-已發貨 { background-color: #81c784; color: #1b5e20; }
-.status-tag.status-已完成 { background-color: #4db6ac; color: #004d40; }
-.status-tag.status-已取消 { background-color: #ef9a9a; color: #b71c1c; }
-
-
+.status-tag.status-pending { background-color: #ffe082; color: #8d6e63; }
+.status-tag.status-processing { background-color: #bbdefb; color: #0d47a1; }
+.status-tag.status-shipped { background-color: #81c784; color: #1b5e20; }
+.status-tag.status-completed { background-color: #4db6ac; color: #004d40; }
+.status-tag.status-cancelled { background-color: #ef9a9a; color: #b71c1c; }
 .detail-btn {
   padding: 6px 10px;
   background-color: #007bff;

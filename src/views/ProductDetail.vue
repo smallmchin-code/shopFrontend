@@ -1,7 +1,16 @@
 <template>
   <div v-if="product" class="product-card" :class="{ 'out-of-stock': !selectedVariant || selectedVariant.stock === 0 }">    
     <div class="product-image-container">
-      <img :src="productImageUrl" :alt="product.name" class="product-image" />
+      <img :src="currentImageUrl" :alt="product.name" class="product-image" />
+      
+      <div v-if="product.images?.length > 1" class="carousel-controls">
+        <button @click="prevImg" class="arrow-btn left">❮</button>
+        <button @click="nextImg" class="arrow-btn right">❯</button>
+      </div>
+
+      <div class="image-counter" v-if="product.images?.length > 1">
+        {{ currentImgIndex + 1 }} / {{ product.images.length }}
+      </div>
       <div v-if="selectedVariant && selectedVariant.stock === 0" class="stock-overlay">
         已售罄 (Out of Stock)
       </div>
@@ -89,14 +98,33 @@ const onSizeSelect = (v) => {
 };
 
 // 圖片處理
-const productImageUrl = computed(() => {
+const currentImgIndex = ref(0);
+
+// 計算當前顯示的圖片 URL
+const currentImageUrl = computed(() => {
   if (product.value?.images?.length > 0) {
-    const mainImg = product.value.images.find(img => img.main) || product.value.images[0];
-    return `http://localhost:8080/api/products/images/${mainImg.id}`;
+    const imgId = product.value.images[currentImgIndex.value].id;
+    return `http://localhost:8080/api/products/images/${imgId}`;
   }
   return '/path/to/default.png';
 });
 
+// 輪播邏輯
+const nextImg = () => {
+  if (currentImgIndex.value < product.value.images.length - 1) {
+    currentImgIndex.value++;
+  } else {
+    currentImgIndex.value = 0; // 循環回到第一張
+  }
+};
+
+const prevImg = () => {
+  if (currentImgIndex.value > 0) {
+    currentImgIndex.value--;
+  } else {
+    currentImgIndex.value = product.value.images.length - 1; // 循環到最後一張
+  }
+};
 // 描述文字長度控制
 const displayDescription = computed(() => {
   if (!product.value?.description) return "";
@@ -116,7 +144,7 @@ const handleAddToCart = () => {
     variantId: selectedVariant.value.id,
     name: product.value.name,
     price: product.value.price,
-    image: productImageUrl.value,
+    image: currentImageUrl.value,
     size: selectedVariant.value.size,
     stock: selectedVariant.value.stock,
     quantity: 1
@@ -127,6 +155,48 @@ const handleAddToCart = () => {
 
 <style scoped>
 /* Base Layout */
+.product-image-container {
+  position: relative; /* 確保箭頭定位正確 */
+}
+
+.carousel-controls {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+  padding: 0 10px;
+  box-sizing: border-box;
+  pointer-events: none; /* 防止遮擋圖片點擊 */
+}
+
+.arrow-btn {
+  pointer-events: auto; /* 讓按鈕可以點擊 */
+  background: rgba(255, 255, 255, 0.6);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: background 0.3s;
+}
+
+.arrow-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.image-counter {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+}
 .product-card {
   display: flex;
   max-width: 960px;

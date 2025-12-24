@@ -106,12 +106,15 @@ export const useOrderStore = defineStore('order', () => {
     async function updateOrderStatus(id, newStatus) { // 👈 修正為 async
         try {
             // 發送 PATCH 請求到後端更新狀態
-            await axios.patch(`${BASE_URL}/${id}`, { status: newStatus }); 
+            const res = await axios.put(`${BASE_URL}/${id}/status`, newStatus, {
+            headers: { 'Content-Type': 'text/plain' } ,// 指定為純文字格式
+            withCredentials: true
+        }); 
             
             // 成功後更新本地狀態，以響應式更新 UI
-            const order = orders.value.find(o => o.id === id);
-            if (order) {
-                order.status = newStatus;
+            const index = orders.value.findIndex(o => o.id === id);
+            if (index !== -1) {
+                orders.value[index] = res.data; 
             }
             
             return { success: true, message: `訂單 ${id} 狀態已更新為 ${newStatus}` };

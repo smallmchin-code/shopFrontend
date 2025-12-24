@@ -74,11 +74,15 @@ async function handleRegister() {
 
   if (result.success) {
     // 註冊成功後自動切換到登入表單
+    alert("註冊成功！");
     isLogin.value = true; 
     // 清空表單
     username.value = '';
     password.value = '';
     email.value = '';
+  } else {
+    // 修正：增加錯誤提示，這樣你就能看到為什麼失敗 (例如: Username already exists)
+    alert("註冊失敗：" + result.message);
   }
 }
 

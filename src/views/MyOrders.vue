@@ -50,13 +50,6 @@
             </ul>
             
             <div class="order-footer">
-              <p class="order-date">
-                下單日期: {{ 
-                  order.date 
-                    ? (order.orderDate).toLocaleString('zh-TW', { timeStyle: 'short', dateStyle: 'short' }) 
-                    : '無紀錄' 
-                }}
-              </p>
               <p class="order-total">
                總金額: <strong>NT$ {{ 
                  order.totalAmount?.toLocaleString('zh-TW') ?? '0' 

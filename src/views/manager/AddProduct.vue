@@ -17,6 +17,17 @@ const toggleMoreImgs = () => {
     isMoreImgs.value = !isMoreImgs.value;
 };
 
+const imagePreviews = ref([]);
+const handleFileChange = (event) => {
+    const files = event.target.files;
+    imagePreviews.value = []; // 清空舊預覽
+    for (let i = 0; i < files.length; i++) {
+        const reader = new FileReader();
+        reader.onload = (e) => imagePreviews.value.push(e.target.result);
+        reader.readAsDataURL(files[i]);
+    }
+};
+
 const handleSubmit = async (event) => {
     event.preventDefault(); 
     const formData = new FormData(event.target);
@@ -37,13 +48,18 @@ const handleSubmit = async (event) => {
     <label for="name">商品名稱</label>
     <input type="text" id="name" name="name" placeholder="例如：復古碎花洋裝、簡約白T恤">
     
-    <label for="image">商品封面</label>
-    <input type="file" accept=".jpg, .jpeg, .png" id="image" name="imageismain" placeholder="貼上清晰的商品圖片" >
-    
-    <button @click="toggleMoreImgs" v-if="!isMoreImgs">有兩張(含)以上圖片</button>
-    <div v-else>
-        <label for="image" >商品圖片</label>
-        <input type="file" accept=".jpg, .jpeg, .png" id="image" name="imagedata" placeholder="貼上清晰的商品圖片" multiple>
+    <label>商品圖片 (第一張將自動設為主圖)</label>
+    <div class="upload-section">
+        <input type="file" accept="image/*" name="imageismain" @change="handleFileChange" required>
+        <p class="hint">如有多張圖片，請在此處繼續選取（按住 Ctrl 多選）：</p>
+        <input type="file" accept="image/*" name="imagedata" @change="handleFileChange" multiple>
+    </div>
+
+    <div class="preview-container" v-if="imagePreviews.length > 0">
+        <div v-for="(src, index) in imagePreviews" :key="index" class="preview-item">
+            <img :src="src" class="preview-img">
+            <span v-if="index === 0" class="main-badge">主圖</span>
+        </div>
     </div>
     
     <label for="price">商品價格 ($)</label>
@@ -116,7 +132,33 @@ label {
     font-size: 1.05rem;
     margin-top: 5px;
 }
-
+.preview-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+.preview-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+.preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+.main-badge {
+    position: absolute;
+    bottom: 0;
+    background: #e63946;
+    color: white;
+    font-size: 10px;
+    width: 100%;
+    text-align: center;
+}
 /* 輸入框和下拉選單樣式：統一、簡潔、舒適 */
 input[type="file"], 
 input[type="text"], 
